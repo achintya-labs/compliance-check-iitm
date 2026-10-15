@@ -1,0 +1,1268 @@
+/* =====================
+   CSS RESET / BASE (consistent with tt.mathiitm.com)
+===================== */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    letter-spacing: 0.015em;
+    background: #fafafa;
+    color: #222;
+    line-height: 1.5;
+    padding: 1.25rem 1.5rem;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
+h1, h2, h3,
+th {
+    font-family: "Oxanium", "Inter", sans-serif;
+    letter-spacing: 0.02em;
+    font-weight: 500;
+}
+
+/* Remove up/down spin arrows from number inputs (credits and semester) */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+/* =====================
+   THEME TRANSITIONS
+===================== */
+body,
+.form-section,
+input,
+select,
+button,
+th,
+td {
+    transition:
+        background-color 0.35s ease,
+        color 0.35s ease,
+        border-color 0.35s ease;
+}
+
+/* =====================
+   LAYOUT
+===================== */
+body > * {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+h1 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-size: 1.6rem;
+}
+
+h2 {
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+    font-size: 1.3rem;
+}
+
+h3 {
+    margin-top: 0.25rem;
+    margin-bottom: 0.5rem;
+    font-size: 1.05rem;
+}
+
+/* =====================
+   PAGE TITLE HEADER
+===================== */
+.page-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+.page-title h1 {
+    margin: 0;
+    flex: 1;
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+
+/* =====================
+   CURRICULUM SELECTOR (matching tt.mathiitm.com semester selector)
+===================== */
+.curriculum-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.curriculum-selector label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: inherit;
+    white-space: nowrap;
+}
+
+.curriculum-selector select {
+    min-width: 140px;
+    height: 38px;
+    padding: 0.45rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 0.9rem;
+    background: #fff;
+    color: #222;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+/* =====================
+   FORM SECTIONS (CARDS)
+===================== */
+.form-section {
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.form-section p {
+    margin-top: 0.25rem;
+    margin-bottom: 0.75rem;
+    color: #555;
+    font-size: 0.92rem;
+}
+
+.hint {
+    font-size: 0.85rem;
+    color: #666;
+    margin: 0.25rem 0 0.5rem 0;
+}
+
+.subtext {
+    font-size: 0.85em;
+    color: #666;
+}
+
+/* =====================
+   BUTTONS
+===================== */
+button, .action-btn {
+    appearance: none;
+    border: 1px solid #d0d0d0;
+    background: #ffffff;
+    padding: 0.45rem 0.9rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: inherit;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    button:hover, .action-btn:hover {
+        background: #f2f2f2;
+    }
+}
+
+button:active, .action-btn:active {
+    transform: translateY(1px);
+}
+
+.primary-btn {
+    font-weight: 600;
+    background: #222;
+    color: #fff;
+    border-color: #222;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .primary-btn:hover {
+        background: #444;
+    }
+}
+
+/* =====================
+   COURSE EDITOR (ROWS & CONTROLS)
+===================== */
+.editor-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    margin: 1rem 0 1.25rem 0;
+}
+
+.action-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.action-row.first-row {
+    justify-content: space-between;
+}
+
+.action-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.action-group-right {
+    margin-left: auto;
+}
+
+.action-row button,
+.action-group button {
+    min-width: 140px;
+}
+
+button:disabled, .action-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    button:disabled:hover, .action-btn:disabled:hover {
+        background: #ffffff;
+    }
+    body.dark-mode button:disabled:hover,
+    body:not(.light-mode) button:disabled:hover {
+        background: #3a3a3a;
+    }
+}
+
+.courses-table-container {
+    margin-top: 1rem;
+    width: 100%;
+}
+
+.course-row-header {
+    display: grid;
+    grid-template-columns: minmax(100px, 120px) minmax(200px, 2fr) minmax(75px, 95px) minmax(110px, 140px) minmax(75px, 95px) 28px;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    font-family: "Oxanium", "Inter", sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #555;
+    border-bottom: 2px solid #e5e5e5;
+}
+
+#courseRowsList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+}
+
+.course-row {
+    display: grid;
+    grid-template-columns: minmax(100px, 120px) minmax(200px, 2fr) minmax(75px, 95px) minmax(110px, 140px) minmax(75px, 95px) 28px;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.2rem 0;
+}
+
+.course-row input,
+.course-row select {
+    width: 100%;
+    height: 36px;
+    padding: 0.45rem 0.6rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 0.9rem;
+    font-family: inherit;
+    background: #fff;
+    color: #222;
+}
+
+.course-row .row-code {
+    text-transform: uppercase;
+    font-weight: 500;
+    font-family: "Oxanium", monospace;
+}
+
+.course-row .close-btn {
+    font-size: 20px;
+    text-align: center;
+    cursor: pointer;
+    color: #aaa;
+    user-select: none;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    border-radius: 6px;
+    transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.course-row .close-btn:hover {
+    color: #dc2626;
+    background: rgba(220, 38, 38, 0.1);
+}
+
+/* =====================
+   TABLES & ROWS (Same width across summary rows)
+===================== */
+.table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-top: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+th, td {
+    border: 1px solid #e5e5e5;
+    padding: 0.6rem 0.75rem;
+    text-align: left;
+    vertical-align: middle;
+}
+
+th {
+    background-color: #f5f5f5;
+    color: #222;
+}
+
+/* Make every row in the summary table have the exact same width, height, and column proportions */
+#summaryTable {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+#summaryTable thead tr,
+#summaryTable thead th {
+    height: 44px;
+}
+
+#summaryTable tbody tr,
+#summaryTable tbody td {
+    height: 64px;
+    box-sizing: border-box;
+}
+
+#summaryTable tbody td {
+    vertical-align: middle;
+    padding: 0.45rem 0.75rem;
+}
+
+#summaryTable th:nth-child(1),
+#summaryTable td:nth-child(1) {
+    width: 38%;
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+
+#summaryTable th:nth-child(2),
+#summaryTable td:nth-child(2) {
+    width: 19%;
+    white-space: normal;
+}
+
+#summaryTable th:nth-child(3),
+#summaryTable td:nth-child(3) {
+    width: 19%;
+    white-space: normal;
+}
+
+#summaryTable th:nth-child(4),
+#summaryTable td:nth-child(4) {
+    width: 24%;
+    min-width: 110px;
+    text-align: center;
+}
+
+.metric-val {
+    font-weight: 500;
+    line-height: 1.25;
+}
+
+.metric-sub {
+    font-size: 0.82em;
+    color: #666;
+    line-height: 1.2;
+    margin-top: 2px;
+}
+
+body.dark-mode .metric-sub,
+body:not(.light-mode) .metric-sub {
+    color: #b5b5b5;
+}
+
+.status-cell {
+    text-align: center;
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* Detail card table layout (General) */
+.detail-card table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.detail-card table th,
+.detail-card table td {
+    overflow-wrap: break-word;
+    vertical-align: middle;
+}
+
+/* 6-Column Layout for Core Courses Table */
+.detail-card table.table-core th:nth-child(1),
+.detail-card table.table-core td:nth-child(1) {
+    width: 13%;
+}
+
+.detail-card table.table-core th:nth-child(2),
+.detail-card table.table-core td:nth-child(2) {
+    width: 33%;
+    white-space: normal;
+}
+
+.detail-card table.table-core th:nth-child(3),
+.detail-card table.table-core td:nth-child(3) {
+    width: 12%;
+}
+
+.detail-card table.table-core th:nth-child(4),
+.detail-card table.table-core td:nth-child(4) {
+    width: 11%;
+    text-align: center;
+}
+
+.detail-card table.table-core th:nth-child(5),
+.detail-card table.table-core td:nth-child(5) {
+    width: 11%;
+    text-align: center;
+}
+
+.detail-card table.table-core th:nth-child(6),
+.detail-card table.table-core td:nth-child(6) {
+    width: 20%;
+    min-width: 110px;
+    text-align: center;
+}
+
+/* 5-Column Layout for Electives / Other Requirements */
+.detail-card table:not(.table-core) th:nth-child(1),
+.detail-card table:not(.table-core) td:nth-child(1) {
+    width: 15%;
+}
+
+.detail-card table:not(.table-core) th:nth-child(2),
+.detail-card table:not(.table-core) td:nth-child(2) {
+    width: 36%;
+    white-space: normal;
+}
+
+.detail-card table:not(.table-core) th:nth-child(3),
+.detail-card table:not(.table-core) td:nth-child(3) {
+    width: 13%;
+}
+
+.detail-card table:not(.table-core) th:nth-child(4),
+.detail-card table:not(.table-core) td:nth-child(4) {
+    width: 12%;
+    text-align: center;
+}
+
+.detail-card table:not(.table-core) th:nth-child(5),
+.detail-card table:not(.table-core) td:nth-child(5) {
+    width: 24%;
+    min-width: 130px;
+    text-align: center;
+}
+
+tr.clickable-row {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+tr.clickable-row:hover {
+    background-color: #f2f2f2;
+}
+
+tr.clickable-row.selected-row {
+    background-color: #e8e8e8;
+}
+
+.cell-wrap {
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+
+/* =====================
+   CODE & TINTED STATUS BOXES
+===================== */
+code {
+    font-family: "Oxanium", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.88em;
+    background: #f0f0f0;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+}
+
+/* Unified Status & Detail Badge Boxes with Subtle Color Tints */
+.badge {
+    display: inline-block;
+    box-sizing: border-box;
+    max-width: 100%;
+    padding: 0.2rem 0.45rem;
+    font-size: 0.75rem;
+    border-radius: 6px;
+    font-weight: 500;
+    font-family: "Oxanium", "Inter", sans-serif;
+    letter-spacing: 0.01em;
+    line-height: 1.25;
+    border: 1px solid transparent;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Subtle Green Tint for Complete / Passed */
+.badge-pass {
+    background-color: #e8f5e9;
+    color: #1b5e20;
+    border-color: #c8e6c9;
+}
+
+/* Subtle Red/Coral Tint for Incomplete / Failed */
+.badge-fail {
+    background-color: #ffebee;
+    color: #b71c1c;
+    border-color: #ffcdd2;
+}
+
+/* =====================
+   MESSAGES & ALERTS
+===================== */
+.message-board {
+    margin-bottom: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.alert {
+    padding: 0.75rem 1rem;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 0.9rem;
+    display: none;
+}
+
+.alert.active {
+    display: block;
+}
+
+.alert-notice {
+    border-left: 4px solid #666;
+}
+
+.alert-warning {
+    border-left: 5px solid #d97706;
+}
+
+.alert-error {
+    border-left: 5px solid #dc2626;
+}
+
+/* =====================
+   THEME TOGGLE UI (tt.mathiitm.com)
+===================== */
+.theme-toggle {
+    display: flex;
+    align-items: center;
+    margin: 0;
+}
+
+.theme-switch {
+    position: relative;
+    width: 32px;
+    height: 32px;
+}
+
+.theme-switch input {
+    display: none;
+}
+
+.theme-switch .slider {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.35s ease;
+}
+
+/* Knob */
+.theme-switch .slider::before {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 26px;
+    height: 26px;
+    background: #ededed;
+    border-radius: 50%;
+    z-index: 1;
+    transition: background 0.35s ease;
+}
+
+/* Sun and Moon Icons - centered and adjusted to prevent upward offset */
+.theme-switch .icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, calc(-50% + 1.5px));
+    width: 14px;
+    height: 14px;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 2;
+    display: block;
+}
+
+.theme-switch .sun {
+    opacity: 1;
+    color: #444;
+}
+
+.theme-switch .moon {
+    opacity: 0;
+    color: #e5e5e5;
+}
+
+.theme-switch input:checked + .slider::before {
+    background: #2f2f2f;
+}
+
+.theme-switch input:checked + .slider .sun {
+    opacity: 0;
+}
+
+.theme-switch input:checked + .slider .moon {
+    opacity: 1;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.results-hidden {
+    display: none;
+}
+
+/* =====================
+   DARK MODE (SYSTEM DEFAULT)
+===================== */
+@media (prefers-color-scheme: dark) {
+    body:not(.light-mode) {
+        background: #1a1a1a;
+        color: #e5e5e5;
+    }
+
+    body:not(.light-mode) h1,
+    body:not(.light-mode) h2,
+    body:not(.light-mode) h3 {
+        color: #f0f0f0;
+    }
+
+    body:not(.light-mode) .form-section {
+        background: #252525;
+        border-color: #2a2a2a;
+    }
+
+    body:not(.light-mode) .form-section p,
+    body:not(.light-mode) .hint,
+    body:not(.light-mode) .subtext {
+        color: #b5b5b5;
+    }
+
+    body:not(.light-mode) input,
+    body:not(.light-mode) select {
+        background: #222222;
+        color: #e5e5e5;
+        border-color: #6b6b6b;
+    }
+
+    body:not(.light-mode) .curriculum-selector select {
+        background: #252525;
+        color: #e5e5e5;
+        border-color: #2a2a2a;
+    }
+
+    body:not(.light-mode) button,
+    body:not(.light-mode) .action-btn {
+        background: #3a3a3a;
+        color: #e5e5e5;
+        border-color: #3a3a3a;
+    }
+
+    body:not(.light-mode) button:hover,
+    body:not(.light-mode) .action-btn:hover {
+        background: #2a2a2a;
+    }
+
+    body:not(.light-mode) .primary-btn {
+        background: #eeeeee;
+        color: #111111;
+        border-color: #eeeeee;
+    }
+
+    body:not(.light-mode) .primary-btn:hover {
+        background: #ffffff;
+    }
+
+    body:not(.light-mode) .course-row-header {
+        border-bottom-color: #3a3a3a;
+        color: #b5b5b5;
+    }
+
+    body:not(.light-mode) .course-row input,
+    body:not(.light-mode) .course-row select {
+        background: #222222;
+        color: #e5e5e5;
+        border-color: #6b6b6b;
+    }
+
+    body:not(.light-mode) .course-row .close-btn:hover {
+        color: #f87171;
+        background: rgba(248, 113, 113, 0.15);
+    }
+
+    body:not(.light-mode) th,
+    body:not(.light-mode) td {
+        border-color: #3a3a3a;
+    }
+
+    body:not(.light-mode) th {
+        background-color: #2a2a2a;
+        color: #f0f0f0;
+    }
+
+    body:not(.light-mode) tr.clickable-row:hover {
+        background-color: #303030;
+    }
+
+    body:not(.light-mode) tr.clickable-row.selected-row {
+        background-color: #383838;
+    }
+
+    body:not(.light-mode) code {
+        background: #2a2a2a;
+        color: #e5e5e5;
+    }
+
+    /* Subtle tinted badges in Dark Mode */
+    body:not(.light-mode) .badge-pass {
+        background-color: #1e3820;
+        color: #86efac;
+        border-color: #28542c;
+    }
+
+    body:not(.light-mode) .badge-fail {
+        background-color: #3b1817;
+        color: #fca5a5;
+        border-color: #5c2221;
+    }
+
+    body:not(.light-mode) .alert {
+        background: #252525;
+        border-color: #2a2a2a;
+        color: #e5e5e5;
+    }
+
+    body:not(.light-mode) .theme-switch .slider::before {
+        background: #2f2f2f;
+    }
+
+    body:not(.light-mode) .theme-switch .sun {
+        opacity: 0;
+    }
+
+    body:not(.light-mode) .theme-switch .moon {
+        opacity: 1;
+    }
+}
+
+/* =====================
+   EXPLICIT DARK MODE OVERRIDE
+===================== */
+body.dark-mode {
+    background: #1a1a1a;
+    color: #e5e5e5;
+}
+
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3 {
+    color: #f0f0f0;
+}
+
+body.dark-mode .form-section {
+    background: #252525;
+    border-color: #2a2a2a;
+}
+
+body.dark-mode .form-section p,
+body.dark-mode .hint,
+body.dark-mode .subtext {
+    color: #b5b5b5;
+}
+
+body.dark-mode input,
+body.dark-mode select {
+    background: #222222;
+    color: #e5e5e5;
+    border-color: #6b6b6b;
+}
+
+body.dark-mode .curriculum-selector select {
+    background: #252525;
+    color: #e5e5e5;
+    border-color: #2a2a2a;
+}
+
+body.dark-mode button,
+body.dark-mode .action-btn {
+    background: #3a3a3a;
+    color: #e5e5e5;
+    border-color: #3a3a3a;
+}
+
+body.dark-mode button:hover,
+body.dark-mode .action-btn:hover {
+    background: #2a2a2a;
+}
+
+body.dark-mode .primary-btn {
+    background: #eeeeee;
+    color: #111111;
+    border-color: #eeeeee;
+}
+
+body.dark-mode .primary-btn:hover {
+    background: #ffffff;
+}
+
+body.dark-mode .course-row-header {
+    border-bottom-color: #3a3a3a;
+    color: #b5b5b5;
+}
+
+body.dark-mode .course-row input,
+body.dark-mode .course-row select {
+    background: #222222;
+    color: #e5e5e5;
+    border-color: #6b6b6b;
+}
+
+body.dark-mode .course-row .close-btn:hover {
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.15);
+}
+
+body.dark-mode th,
+body.dark-mode td {
+    border-color: #3a3a3a;
+}
+
+body.dark-mode th {
+    background-color: #2a2a2a;
+    color: #f0f0f0;
+}
+
+body.dark-mode tr.clickable-row:hover {
+    background-color: #303030;
+}
+
+body.dark-mode tr.clickable-row.selected-row {
+    background-color: #383838;
+}
+
+body.dark-mode code {
+    background: #2a2a2a;
+    color: #e5e5e5;
+}
+
+/* Subtle tinted badges in Dark Mode */
+body.dark-mode .badge-pass {
+    background-color: #1e3820;
+    color: #86efac;
+    border-color: #28542c;
+}
+
+body.dark-mode .badge-fail {
+    background-color: #3b1817;
+    color: #fca5a5;
+    border-color: #5c2221;
+}
+
+body.dark-mode .alert {
+    background: #252525;
+    border-color: #2a2a2a;
+    color: #e5e5e5;
+}
+
+body.dark-mode .theme-switch .slider::before {
+    background: #2f2f2f;
+}
+
+body.dark-mode .theme-switch .sun {
+    opacity: 0;
+}
+
+body.dark-mode .theme-switch .moon {
+    opacity: 1;
+}
+
+/* =====================
+   EXPLICIT LIGHT MODE OVERRIDE
+===================== */
+body.light-mode {
+    background: #fafafa;
+    color: #222;
+}
+
+body.light-mode h1,
+body.light-mode h2,
+body.light-mode h3 {
+    color: #222;
+}
+
+body.light-mode .form-section {
+    background: #ffffff;
+    border-color: #e5e5e5;
+}
+
+body.light-mode .form-section p,
+body.light-mode .hint,
+body.light-mode .subtext {
+    color: #555;
+}
+
+body.light-mode input,
+body.light-mode select {
+    background: #fff;
+    color: #222;
+    border-color: #ccc;
+}
+
+body.light-mode .curriculum-selector select {
+    background: #fff;
+    color: #222;
+    border-color: #ccc;
+}
+
+body.light-mode button,
+body.light-mode .action-btn {
+    background: #ffffff;
+    color: inherit;
+    border-color: #d0d0d0;
+}
+
+body.light-mode button:hover,
+body.light-mode .action-btn:hover {
+    background: #f2f2f2;
+}
+
+body.light-mode .primary-btn {
+    background: #222222;
+    color: #ffffff;
+    border-color: #222222;
+}
+
+body.light-mode .primary-btn:hover {
+    background: #444444;
+}
+
+body.light-mode .course-row-header {
+    border-bottom-color: #e5e5e5;
+    color: #555;
+}
+
+body.light-mode .course-row input,
+body.light-mode .course-row select {
+    background: #fff;
+    color: #222;
+    border-color: #ccc;
+}
+
+body.light-mode th,
+body.light-mode td {
+    border-color: #e5e5e5;
+}
+
+body.light-mode th {
+    background-color: #f5f5f5;
+    color: #222;
+}
+
+body.light-mode tr.clickable-row:hover {
+    background-color: #f2f2f2;
+}
+
+body.light-mode tr.clickable-row.selected-row {
+    background-color: #e8e8e8;
+}
+
+body.light-mode code {
+    background: #f0f0f0;
+    color: inherit;
+}
+
+/* Subtle tinted badges in Light Mode */
+body.light-mode .badge-pass {
+    background-color: #e8f5e9;
+    color: #1b5e20;
+    border-color: #c8e6c9;
+}
+
+body.light-mode .badge-fail {
+    background-color: #ffebee;
+    color: #b71c1c;
+    border-color: #ffcdd2;
+}
+
+body.light-mode .alert {
+    background: #fff;
+    border-color: #e5e5e5;
+    color: #222;
+}
+
+body.light-mode .theme-switch .slider::before {
+    background: #ededed;
+}
+
+body.light-mode .theme-switch .sun {
+    opacity: 1;
+}
+
+body.light-mode .theme-switch .moon {
+    opacity: 0;
+}
+
+/* =====================
+   MOBILE RESPONSIVENESS
+===================== */
+@media (max-width: 768px) {
+    .page-title {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .header-controls {
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    /* Mobile Editor Action Buttons (Full width per button) */
+    .editor-actions {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        gap: 0.5rem;
+        margin: 0.75rem 0 1rem 0;
+    }
+
+    .action-row,
+    .action-row.first-row {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        gap: 0.5rem;
+        align-items: stretch;
+    }
+
+    .action-group,
+    .action-group.action-group-right {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        margin: 0;
+        gap: 0.5rem;
+        align-items: stretch;
+    }
+
+    .editor-actions button,
+    .action-row button,
+    .action-group button,
+    #saveAndCalculateBtn,
+    #cancelEditBtn,
+    #uploadJsonBtn,
+    #downloadJsonBtn,
+    #addRowBtn,
+    #clearCoursesBtn {
+        width: 100% !important;
+        min-width: 100% !important;
+        box-sizing: border-box;
+        text-align: center;
+        display: block;
+        padding: 0.6rem 0.9rem;
+    }
+
+    /* Mobile Course Rows: Course number & name full width; 3 fields squished on one line */
+    .course-row-header {
+        display: none;
+    }
+
+    .course-row {
+        display: grid;
+        grid-template-columns: 1fr 1.35fr 1fr 34px;
+        grid-template-areas:
+            "code code code code"
+            "name name name name"
+            "credits category semester remove";
+        gap: 0.45rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #e5e5e5;
+        align-items: center;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    body.dark-mode .course-row,
+    body:not(.light-mode) .course-row {
+        border-bottom-color: #3a3a3a;
+    }
+
+    .course-row .row-code {
+        grid-area: code;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .course-row .row-name {
+        grid-area: name;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .course-row .row-credits {
+        grid-area: credits;
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+    .course-row .row-category {
+        grid-area: category;
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+    .course-row .row-semester {
+        grid-area: semester;
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+    .course-row .close-btn {
+        grid-area: remove;
+        width: 34px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-size: 1.25rem;
+    }
+
+    /* Tables & Status Boxes (Contained and strictly bounded) */
+    .table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-top: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    #summaryTable {
+        min-width: 500px;
+    }
+
+    .detail-card table.table-core {
+        min-width: 620px;
+    }
+
+    .detail-card table:not(.table-core) {
+        min-width: 540px;
+    }
+
+    .status-cell {
+        padding-left: 0.2rem !important;
+        padding-right: 0.2rem !important;
+        overflow: hidden !important;
+        box-sizing: border-box;
+        text-align: center;
+    }
+
+    .badge {
+        font-size: 0.72rem;
+        padding: 0.15rem 0.35rem;
+        max-width: 100%;
+        box-sizing: border-box;
+        letter-spacing: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: inline-block;
+    }
+
+    body {
+        padding: 0.75rem 1rem;
+    }
+}

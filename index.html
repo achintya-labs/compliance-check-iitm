@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Completion Status</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oxanium:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="page-title">
+        <h1>Credit Completion Status</h1>
+        <div class="header-controls">
+            <div class="curriculum-selector">
+                <label for="curriculumSelect">Curriculum: </label>
+                <select id="curriculumSelect" aria-label="Select Curriculum"></select>
+            </div>
+            <button id="modifyCoursesBtn" class="action-btn hidden" type="button">Modify Courses</button>
+            <span class="theme-toggle" id="themeToggle" title="Toggle theme">
+                <label class="theme-switch" for="darkModeToggle" aria-label="Toggle theme">
+                    <input type="checkbox" id="darkModeToggle">
+                    <span class="slider">
+                        <svg class="icon sun" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                        <svg class="icon moon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    </span>
+                </label>
+            </span>
+        </div>
+    </header>
+
+    <main>
+        <!-- Course Addition / Modification Screen -->
+        <section id="editorScreen" class="form-section">
+            <h3 style="margin-top: 0; margin-bottom: 0.25rem;">Manage Completed Courses</h3>
+            <p>Add, edit, or remove your completed courses below. You can also upload a JSON array file to populate the list directly.</p>
+
+            <div class="editor-actions">
+                <div class="action-row first-row">
+                    <div class="action-group">
+                        <button type="button" id="saveAndCalculateBtn" class="primary-btn">Save & Calculate Compliance</button>
+                        <button type="button" id="cancelEditBtn" class="action-btn">Back to Summary</button>
+                    </div>
+                    <div class="action-group action-group-right">
+                        <button type="button" id="uploadJsonBtn">Upload JSON</button>
+                        <input type="file" id="jsonFileInput" accept=".json" hidden>
+                        <button type="button" id="downloadJsonBtn">Download JSON</button>
+                    </div>
+                </div>
+                <div class="action-row">
+                    <button type="button" id="addRowBtn">Add Course</button>
+                    <button type="button" id="clearCoursesBtn">Clear All</button>
+                </div>
+            </div>
+
+            <div id="editorNotice" class="alert alert-notice" style="display: none; margin: 0.75rem 0;"></div>
+
+            <div class="courses-table-container">
+                <div class="course-row-header">
+                    <span>Course Code</span>
+                    <span>Course Name</span>
+                    <span>Credits</span>
+                    <span>Category</span>
+                    <span>Semester</span>
+                    <span></span>
+                </div>
+                <div id="courseRowsList">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Compliance Summary Screen -->
+        <section id="summaryScreen" class="hidden">
+            <!-- Notification center for notices, warnings, and errors -->
+            <div id="messageBoard" class="message-board" aria-live="polite"></div>
+
+            <div class="form-section">
+                <h3 style="margin-top: 0; margin-bottom: 0.25rem;">Compliance Summary</h3>
+                <p>Click on any row below to view specific courses applied to that requirement.</p>
+                <div class="table-wrap">
+                    <table id="summaryTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">Requirement</th>
+                                <th scope="col">Target</th>
+                                <th scope="col">Completed</th>
+                                <th scope="col">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="detailsSection" aria-live="polite">
+                <!-- Details populated by JS -->
+            </div>
+        </section>
+    </main>
+
+    <script src="curriculum.js"></script>
+    <script src="compliance.js"></script>
+    <script src="ui.js"></script>
+</body>
+</html>
