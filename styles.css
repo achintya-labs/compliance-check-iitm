@@ -263,6 +263,93 @@ button:disabled, .action-btn:disabled {
     }
 }
 
+/* =====================
+   LLM PROMPT ACCORDION
+===================== */
+.prompt-details {
+    background: #fbfbfb;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin: 0.75rem 0 1rem 0;
+    font-size: 0.88rem;
+    overflow: hidden;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.prompt-details[open] {
+    background: #ffffff;
+    border-color: #d0d0d0;
+}
+
+.prompt-details summary {
+    padding: 0.6rem 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    user-select: none;
+    color: #444;
+    outline: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.prompt-details summary::-webkit-details-marker {
+    display: none;
+}
+
+.prompt-details summary::before {
+    content: "▶";
+    font-size: 0.7em;
+    transition: transform 0.15s ease;
+    display: inline-block;
+}
+
+.prompt-details[open] summary::before {
+    transform: rotate(90deg);
+}
+
+.prompt-details summary:hover {
+    color: #111;
+}
+
+.prompt-box {
+    padding: 0 0.85rem 0.85rem 0.85rem;
+    border-top: 1px solid #f0f0f0;
+}
+
+.prompt-instruction {
+    font-size: 0.85rem;
+    color: #555;
+    margin: 0.5rem 0 0.6rem 0;
+    line-height: 1.4;
+}
+
+.prompt-textarea-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.prompt-textarea-wrap textarea {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    padding: 0.6rem;
+    border: 1px solid #d0d0d0;
+    border-radius: 6px;
+    background: #f9f9f9;
+    color: #222;
+    resize: vertical;
+}
+
+.copy-btn {
+    align-self: flex-start;
+    font-size: 0.82rem;
+    padding: 0.4rem 0.85rem;
+}
+
 .courses-table-container {
     margin-top: 1rem;
     width: 100%;
@@ -952,6 +1039,45 @@ body.dark-mode .alert {
     color: #e5e5e5;
 }
 
+body.dark-mode .prompt-details,
+body:not(.light-mode) .prompt-details {
+    background: #252525;
+    border-color: #383838;
+}
+
+body.dark-mode .prompt-details[open],
+body:not(.light-mode) .prompt-details[open] {
+    background: #222222;
+    border-color: #444444;
+}
+
+body.dark-mode .prompt-details summary,
+body:not(.light-mode) .prompt-details summary {
+    color: #ccc;
+}
+
+body.dark-mode .prompt-details summary:hover,
+body:not(.light-mode) .prompt-details summary:hover {
+    color: #fff;
+}
+
+body.dark-mode .prompt-box,
+body:not(.light-mode) .prompt-box {
+    border-top-color: #333333;
+}
+
+body.dark-mode .prompt-instruction,
+body:not(.light-mode) .prompt-instruction {
+    color: #aaa;
+}
+
+body.dark-mode .prompt-textarea-wrap textarea,
+body:not(.light-mode) .prompt-textarea-wrap textarea {
+    background: #191919;
+    color: #e5e5e5;
+    border-color: #383838;
+}
+
 body.dark-mode .theme-switch .slider::before {
     background: #2f2f2f;
 }
@@ -1141,7 +1267,8 @@ body.light-mode .theme-switch .moon {
     #uploadJsonBtn,
     #downloadJsonBtn,
     #addRowBtn,
-    #clearCoursesBtn {
+    #clearCoursesBtn,
+    .copy-btn {
         width: 100% !important;
         min-width: 100% !important;
         box-sizing: border-box;

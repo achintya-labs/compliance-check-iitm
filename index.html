@@ -54,6 +54,45 @@
                 </div>
             </div>
 
+            <!-- Collapsible LLM Prompt for PDF Gradecard Conversion -->
+            <details class="prompt-details">
+                <summary>LLM Prompt to Convert PDF Gradecard to JSON</summary>
+                <div class="prompt-box">
+                    <p class="prompt-instruction">
+                        Upload your PDF gradecard along with this prompt to your favorite LLM (such as ChatGPT, Claude, or Gemini) to extract your completed courses into the required JSON format, then import it using <strong>Upload JSON</strong> above.
+                    </p>
+                    <div class="prompt-textarea-wrap">
+                        <textarea id="llmPromptText" readonly rows="12">You are a precise academic transcript parser. I have attached my college gradecard / transcript PDF.
+Please extract all completed (passed) courses and output them as a JSON array matching this exact schema:
+
+[
+  {
+    "code": "COURSE_CODE",
+    "name": "COURSE_NAME",
+    "credits": 10,
+    "category": "CATEGORY",
+    "semester": 1
+  }
+]
+
+Instructions:
+1. Extract only completed courses with passing grades. Exclude any courses with failing or unearned grades (such as U, F, W, or incomplete).
+2. "code": Course code in uppercase with no spaces (e.g., "EE2001", "MA1101").
+3. "name": Full course title (e.g., "Digital Systems & Lab").
+4. "credits": Integer number of earned credits (e.g., 10, 16).
+5. "category": Single-letter uppercase category code:
+   - "S": Basic Sciences (Mathematics, Physics, Chemistry, Biology: MA, PH, CY, BT)
+   - "E": Basic Engineering (Mechanics, Thermodynamics, Workshop: ME, CE, AM, WS)
+   - "H": Humanities and Social Sciences (HS)
+   - "P": Professional / Departmental Core and Electives (EE)
+   - "G": General, Life Skills, NCC/NSS/NSO (GN, ID, OB)
+6. "semester": Integer representing the semester number (1, 2, 3, etc.) when the course was taken.
+7. Output ONLY the raw JSON array. Do not wrap in markdown code blocks and do not add conversational preamble or postscript.</textarea>
+                        <button type="button" id="copyPromptBtn" class="action-btn copy-btn">Copy Prompt</button>
+                    </div>
+                </div>
+            </details>
+
             <div id="editorNotice" class="alert alert-notice" style="display: none; margin: 0.75rem 0;"></div>
 
             <div class="courses-table-container">

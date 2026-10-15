@@ -356,6 +356,33 @@ function setupEditorControls() {
             }
         });
     }
+
+    const copyPromptBtn = document.getElementById('copyPromptBtn');
+    const llmPromptText = document.getElementById('llmPromptText');
+    if (copyPromptBtn && llmPromptText) {
+        copyPromptBtn.addEventListener('click', () => {
+            llmPromptText.select();
+            const setCopied = () => {
+                const originalText = copyPromptBtn.textContent;
+                copyPromptBtn.textContent = "Copied to Clipboard!";
+                setTimeout(() => {
+                    copyPromptBtn.textContent = originalText;
+                }, 2000);
+            };
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(llmPromptText.value)
+                    .then(setCopied)
+                    .catch(() => {
+                        document.execCommand('copy');
+                        setCopied();
+                    });
+            } else {
+                document.execCommand('copy');
+                setCopied();
+            }
+        });
+    }
 }
 
 function showEditorNotice(text, type = 'notice') {
