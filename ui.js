@@ -1,4 +1,5 @@
 let currentCourses = [];
+let currentSubstitutions = [];
 
 document.addEventListener("DOMContentLoaded", function() {
     setupDarkMode();
@@ -161,6 +162,30 @@ function loadCurriculumFromCookie() {
     return getCookie('selected_curriculum') || localStorage.getItem('selected_curriculum') || 'ee_btech';
 }
 
+function saveSubstitutionsToCookie(substitutions) {
+    const jsonStr = JSON.stringify(substitutions || []);
+    setCookie('substitutions_data', jsonStr);
+    try {
+        localStorage.setItem('saved_substitutions', jsonStr);
+    } catch (e) {}
+}
+
+function loadSubstitutionsFromCookie() {
+    const single = getCookie('substitutions_data');
+    if (single) {
+        try {
+            return JSON.parse(single);
+        } catch (e) {}
+    }
+    try {
+        const local = localStorage.getItem('saved_substitutions');
+        if (local) {
+            return JSON.parse(local);
+        }
+    } catch (e) {}
+    return [];
+}
+
 /* =========================================================
    CURRICULUM SELECTOR (Top Right Corner)
    ========================================================= */
@@ -185,8 +210,9 @@ function initializeCurriculumSelector() {
 
     select.addEventListener('change', () => {
         saveCurriculumToCookie(select.value);
+        updateDatalists();
         if (currentCourses && currentCourses.length > 0) {
-            runCompliance(currentCourses, getCurrentCurriculum());
+            runCompliance(currentCourses, getCurrentCurriculum(), currentSubstitutions);
         }
     });
 }
@@ -228,16 +254,21 @@ function showScreen(screen) {
 
 function loadInitialState() {
     const savedCourses = loadCoursesFromCookie();
+    currentSubstitutions = loadSubstitutionsFromCookie() || [];
 
     if (savedCourses && Array.isArray(savedCourses) && savedCourses.length > 0) {
         currentCourses = savedCourses;
-        runCompliance(currentCourses, getCurrentCurriculum());
+        populateEditorRows(currentCourses);
+        populateSubstitutionRows(currentSubstitutions);
+        runCompliance(currentCourses, getCurrentCurriculum(), currentSubstitutions);
         showScreen('summary');
     } else {
         currentCourses = [];
         populateEditorRows([]);
+        populateSubstitutionRows(currentSubstitutions);
         showScreen('editor');
     }
+    updateDatalists();
 }
 
 /* =========================================================
@@ -248,7 +279,20 @@ function setupEditorControls() {
     if (modifyBtn) {
         modifyBtn.addEventListener('click', () => {
             populateEditorRows(currentCourses);
+            populateSubstitutionRows(currentSubstitutions);
+            updateDatalists();
             showScreen('editor');
+        });
+    }
+
+    const addSubstitutionBtn = document.getElementById('addSubstitutionBtn');
+    if (addSubstitutionBtn) {
+        addSubstitutionBtn.addEventListener('click', () => {
+            addSubstitutionRow();
+            const rows = document.querySelectorAll('#substitutionRowsList .substitution-row');
+            if (rows.length > 0) {
+                rows[rows.length - 1].querySelector('.sub-core-code').focus();
+            }
         });
     }
 
@@ -278,12 +322,25 @@ function setupEditorControls() {
             reader.onload = function(e) {
                 try {
                     const parsed = JSON.parse(e.target.result);
-                    if (!Array.isArray(parsed)) {
-                        throw new Error("JSON file must contain an array of course objects.");
+                    let coursesToLoad = [];
+                    let subsToLoad = [];
+
+                    if (Array.isArray(parsed)) {
+                        coursesToLoad = parsed;
+                    } else if (parsed && Array.isArray(parsed.courses)) {
+                        coursesToLoad = parsed.courses;
+                        if (Array.isArray(parsed.substitutions)) {
+                            subsToLoad = parsed.substitutions;
+                        }
+                    } else {
+                        throw new Error("JSON file must contain an array of course objects or an object with 'courses'.");
                     }
-                    // Directly populate courses from JSON into editor rows
-                    populateEditorRows(parsed, /* append = */ false);
-                    showEditorNotice(`Loaded ${parsed.length} course(s) from JSON. Review or edit, then click 'Save & Calculate Compliance'.`, 'notice');
+
+                    populateEditorRows(coursesToLoad, /* append = */ false);
+                    populateSubstitutionRows(subsToLoad);
+                    updateDatalists();
+                    const subMsg = subsToLoad.length > 0 ? ` and ${subsToLoad.length} substitution(s)` : '';
+                    showEditorNotice(`Loaded ${coursesToLoad.length} course(s)${subMsg} from JSON. Review or edit, then click 'Save & Calculate Compliance'.`, 'notice');
                 } catch (err) {
                     showEditorNotice(`Failed to parse JSON file: ${err.message}`, 'error');
                     console.error(err);
@@ -303,8 +360,17 @@ function setupEditorControls() {
                 return;
             }
 
+            const substitutions = getSubstitutionsFromEditor();
+            let exportData = courses;
+            if (substitutions && substitutions.length > 0) {
+                exportData = {
+                    courses: courses,
+                    substitutions: substitutions
+                };
+            }
+
             try {
-                const dataStr = JSON.stringify(courses, null, 2);
+                const dataStr = JSON.stringify(exportData, null, 2);
                 const blob = new Blob([dataStr], { type: "application/json" });
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement("a");
@@ -314,7 +380,8 @@ function setupEditorControls() {
                 link.click();
                 document.body.removeChild(link);
                 URL.revokeObjectURL(url);
-                showEditorNotice(`Downloaded ${courses.length} course(s) to completed_courses.json.`, 'notice');
+                const subMsg = substitutions.length > 0 ? ` and ${substitutions.length} substitution(s)` : '';
+                showEditorNotice(`Downloaded ${courses.length} course(s)${subMsg} to completed_courses.json.`, 'notice');
             } catch (err) {
                 showEditorNotice(`Failed to export JSON: ${err.message}`, 'error');
                 console.error(err);
@@ -326,7 +393,9 @@ function setupEditorControls() {
     if (clearCoursesBtn) {
         clearCoursesBtn.addEventListener('click', () => {
             populateEditorRows([]);
-            showEditorNotice("Cleared all course rows.", 'notice');
+            populateSubstitutionRows([]);
+            updateDatalists();
+            showEditorNotice("Cleared all course rows and substitutions.", 'notice');
         });
     }
 
@@ -339,11 +408,15 @@ function setupEditorControls() {
                 return;
             }
 
+            const substitutions = getSubstitutionsFromEditor();
+
             currentCourses = courses;
+            currentSubstitutions = substitutions;
             saveCoursesToCookie(currentCourses);
+            saveSubstitutionsToCookie(currentSubstitutions);
 
             const curr = getCurrentCurriculum();
-            runCompliance(currentCourses, curr);
+            runCompliance(currentCourses, curr, currentSubstitutions);
             showScreen('summary');
         });
     }
@@ -454,6 +527,7 @@ function addCourseRow(course = {}) {
         if (document.querySelectorAll('#courseRowsList .course-row').length === 0) {
             addCourseRow();
         }
+        updateCompletedCoursesDatalist();
     });
     closeBtn.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -462,8 +536,14 @@ function addCourseRow(course = {}) {
             if (document.querySelectorAll('#courseRowsList .course-row').length === 0) {
                 addCourseRow();
             }
+            updateCompletedCoursesDatalist();
         }
     });
+
+    const codeInput = row.querySelector('.row-code');
+    const nameInput = row.querySelector('.row-name');
+    if (codeInput) codeInput.addEventListener('input', updateCompletedCoursesDatalist);
+    if (nameInput) nameInput.addEventListener('input', updateCompletedCoursesDatalist);
 
     container.appendChild(row);
 }
@@ -493,17 +573,163 @@ function getCoursesFromEditor() {
     return courses;
 }
 
+function populateSubstitutionRows(substitutions) {
+    const container = document.getElementById('substitutionRowsList');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (!substitutions || substitutions.length === 0) {
+        showEmptySubstitutionHint();
+        return;
+    }
+
+    substitutions.forEach(s => {
+        const orig = s.origCode || s.coreCode || '';
+        const repl = s.replacementCode || s.replCode || '';
+        addSubstitutionRow(orig, repl);
+    });
+}
+
+function showEmptySubstitutionHint() {
+    const container = document.getElementById('substitutionRowsList');
+    if (!container) return;
+    if (container.querySelectorAll('.substitution-row').length === 0) {
+        container.innerHTML = '<p class="hint empty-subs-hint" style="margin: 0.4rem 0;">No substitutions added. Click "Add Substitution" to replace a core course or named basket course with an alternate course.</p>';
+    }
+}
+
+function addSubstitutionRow(coreCode = '', replacementCode = '') {
+    const container = document.getElementById('substitutionRowsList');
+    if (!container) return;
+
+    const emptyHint = container.querySelector('.empty-subs-hint');
+    if (emptyHint) emptyHint.remove();
+
+    const row = document.createElement('div');
+    row.className = 'substitution-row';
+    row.innerHTML = `
+        <input type="text" class="sub-core-code" placeholder="Original Course (e.g. EE2003)" list="curriculumCoursesDatalist" value="${escapeHtml(coreCode)}" maxlength="10">
+        <input type="text" class="sub-repl-code" placeholder="Replacement Course (e.g. CS6001)" list="completedCoursesDatalist" value="${escapeHtml(replacementCode)}" maxlength="10">
+        <span class="close-btn sub-close-btn" title="Remove substitution" role="button" tabindex="0">×</span>
+    `;
+
+    const coreInput = row.querySelector('.sub-core-code');
+    if (coreInput) {
+        coreInput.addEventListener('focus', updateCurriculumCoursesDatalist);
+    }
+
+    const replInput = row.querySelector('.sub-repl-code');
+    if (replInput) {
+        replInput.addEventListener('focus', updateCompletedCoursesDatalist);
+    }
+
+    const closeBtn = row.querySelector('.close-btn');
+    closeBtn.addEventListener('click', () => {
+        row.remove();
+        if (container.querySelectorAll('.substitution-row').length === 0) {
+            showEmptySubstitutionHint();
+        }
+    });
+    closeBtn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            row.remove();
+            if (container.querySelectorAll('.substitution-row').length === 0) {
+                showEmptySubstitutionHint();
+            }
+        }
+    });
+
+    container.appendChild(row);
+}
+
+function getSubstitutionsFromEditor() {
+    const rows = document.querySelectorAll('#substitutionRowsList .substitution-row');
+    const substitutions = [];
+    rows.forEach(row => {
+        const coreCode = row.querySelector('.sub-core-code').value.trim().toUpperCase();
+        const replacementCode = row.querySelector('.sub-repl-code').value.trim().toUpperCase();
+        if (coreCode && replacementCode) {
+            substitutions.push({
+                origCode: coreCode,
+                coreCode: coreCode,
+                replacementCode: replacementCode,
+                replCode: replacementCode
+            });
+        }
+    });
+    return substitutions;
+}
+
+function updateDatalists() {
+    updateCurriculumCoursesDatalist();
+    updateCompletedCoursesDatalist();
+}
+
+function updateCurriculumCoursesDatalist() {
+    const datalist = document.getElementById('curriculumCoursesDatalist');
+    const legacyDatalist = document.getElementById('coreCoursesDatalist');
+    const curr = getCurrentCurriculum();
+    if (!curr) return;
+
+    const options = [];
+    const seen = new Set();
+
+    // 1. Core courses
+    if (curr.coreCourses) {
+        Object.keys(curr.coreCourses).forEach(code => {
+            const info = curr.coreCourses[code];
+            seen.add(code);
+            options.push(`<option value="${code}">${code} - ${escapeHtml(info.name || code)} (Core)</option>`);
+        });
+    }
+
+    // 2. Named courses in baskets / requirements
+    if (curr.requirements) {
+        curr.requirements.forEach(req => {
+            if (req.matchType === 'in_list' && Array.isArray(req.matchValue)) {
+                req.matchValue.forEach(code => {
+                    const tag = `${code} (${req.name})`;
+                    if (!seen.has(tag)) {
+                        seen.add(tag);
+                        options.push(`<option value="${code}">${code} (${escapeHtml(req.name)})</option>`);
+                    }
+                });
+            }
+        });
+    }
+
+    const html = options.join('');
+    if (datalist) datalist.innerHTML = html;
+    if (legacyDatalist) legacyDatalist.innerHTML = html;
+}
+
+function updateCoreCoursesDatalist() {
+    updateCurriculumCoursesDatalist();
+}
+
+function updateCompletedCoursesDatalist() {
+    const completedDatalist = document.getElementById('completedCoursesDatalist');
+    if (!completedDatalist) return;
+    const editorCourses = getCoursesFromEditor();
+    const listToUse = (editorCourses && editorCourses.length > 0) ? editorCourses : currentCourses;
+    completedDatalist.innerHTML = listToUse.map(c => {
+        return `<option value="${c.code}">${c.code} - ${escapeHtml(c.name)}</option>`;
+    }).join('');
+}
+
 /* =========================================================
    COMPLIANCE LOGIC & RENDERING
    ========================================================= */
-function runCompliance(userCourses, curr) {
+function runCompliance(userCourses, curr, subs) {
     const curriculumToUse = curr || getCurrentCurriculum();
     if (!curriculumToUse) {
         console.error("No curriculum available for compliance check.");
         return;
     }
+    const substitutionsToUse = subs !== undefined ? subs : currentSubstitutions;
 
-    const { results, messages } = calculateCompliance(userCourses, curriculumToUse);
+    const { results, messages } = calculateCompliance(userCourses, curriculumToUse, substitutionsToUse);
     renderMessages(messages);
     renderResults(results);
 }

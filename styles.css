@@ -422,6 +422,102 @@ button:disabled, .action-btn:disabled {
 }
 
 /* =====================
+   CORE COURSE SUBSTITUTIONS & ACTIONS
+===================== */
+.substitutions-section h3,
+.course-entry-section h3,
+.editor-actions-section h3 {
+    margin-top: 0;
+    margin-bottom: 0.25rem;
+}
+
+.substitution-actions {
+    margin: 0.75rem 0 1rem 0;
+}
+
+.substitution-actions button {
+    min-width: 140px;
+}
+
+.course-entry-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    margin: 0.75rem 0 1rem 0;
+}
+
+.course-entry-actions button {
+    min-width: 140px;
+}
+
+.substitutions-table-container {
+    width: 100%;
+}
+
+.substitution-row-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr 28px;
+    gap: 0.75rem;
+    padding: 0.4rem 0;
+    font-family: "Oxanium", "Inter", sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #555;
+    border-bottom: 2px solid #e5e5e5;
+}
+
+#substitutionRowsList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    margin-top: 0.5rem;
+}
+
+.substitution-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 28px;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.2rem 0;
+}
+
+.substitution-row input {
+    width: 100%;
+    height: 36px;
+    padding: 0.45rem 0.6rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 0.9rem;
+    font-family: "Oxanium", monospace;
+    font-weight: 500;
+    background: #fff;
+    color: #222;
+    box-sizing: border-box;
+    text-transform: uppercase;
+}
+
+.substitution-row .close-btn {
+    font-size: 20px;
+    text-align: center;
+    cursor: pointer;
+    color: #aaa;
+    user-select: none;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    border-radius: 6px;
+    transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.substitution-row .close-btn:hover {
+    color: #dc2626;
+    background: rgba(220, 38, 38, 0.1);
+}
+
+/* =====================
    TABLES & ROWS (Same width across summary rows)
 ===================== */
 .table-wrap {
@@ -540,18 +636,18 @@ body:not(.light-mode) .metric-sub {
 /* 6-Column Layout for Core Courses Table */
 .detail-card table.table-core th:nth-child(1),
 .detail-card table.table-core td:nth-child(1) {
-    width: 13%;
+    width: 12%;
 }
 
 .detail-card table.table-core th:nth-child(2),
 .detail-card table.table-core td:nth-child(2) {
-    width: 33%;
+    width: 30%;
     white-space: normal;
 }
 
 .detail-card table.table-core th:nth-child(3),
 .detail-card table.table-core td:nth-child(3) {
-    width: 12%;
+    width: 11%;
 }
 
 .detail-card table.table-core th:nth-child(4),
@@ -568,8 +664,8 @@ body:not(.light-mode) .metric-sub {
 
 .detail-card table.table-core th:nth-child(6),
 .detail-card table.table-core td:nth-child(6) {
-    width: 20%;
-    min-width: 110px;
+    width: 25%;
+    min-width: 130px;
     text-align: center;
 }
 
@@ -986,15 +1082,23 @@ body.dark-mode .course-row-header {
 }
 
 body.dark-mode .course-row input,
-body.dark-mode .course-row select {
+body.dark-mode .course-row select,
+body.dark-mode .substitution-row input {
     background: #222222;
     color: #e5e5e5;
     border-color: #6b6b6b;
 }
 
-body.dark-mode .course-row .close-btn:hover {
+body.dark-mode .course-row .close-btn:hover,
+body.dark-mode .substitution-row .close-btn:hover {
     color: #f87171;
     background: rgba(248, 113, 113, 0.15);
+}
+
+body.dark-mode .substitution-row-header,
+body:not(.light-mode) .substitution-row-header {
+    border-bottom-color: #3a3a3a;
+    color: #b5b5b5;
 }
 
 body.dark-mode th,
@@ -1346,6 +1450,76 @@ body.light-mode .theme-switch .moon {
         padding: 0;
         box-sizing: border-box;
         font-size: 1.25rem;
+    }
+
+    /* Mobile Substitution Rows */
+    .substitution-row-header {
+        display: none;
+    }
+
+    .substitution-row {
+        display: grid;
+        grid-template-columns: 1fr 34px;
+        grid-template-areas:
+            "core remove"
+            "repl repl";
+        gap: 0.45rem;
+        padding: 0.6rem 0;
+        border-bottom: 1px solid #e5e5e5;
+        align-items: center;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    body.dark-mode .substitution-row,
+    body:not(.light-mode) .substitution-row {
+        border-bottom-color: #3a3a3a;
+    }
+
+    .substitution-row .sub-core-code {
+        grid-area: core;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .substitution-row .sub-repl-code {
+        grid-area: repl;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .substitution-row .close-btn {
+        grid-area: remove;
+        width: 34px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-size: 1.25rem;
+    }
+
+    .course-entry-actions,
+    .substitution-actions {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        margin: 0.75rem 0 1rem 0;
+        gap: 0.5rem;
+        align-items: stretch;
+    }
+
+    .course-entry-actions button,
+    .substitution-actions button,
+    #addSubstitutionBtn {
+        width: 100% !important;
+        min-width: 100% !important;
+        box-sizing: border-box;
+        text-align: center;
+        display: block;
+        padding: 0.6rem 0.9rem;
     }
 
     /* Tables & Status Boxes (Contained and strictly bounded) */

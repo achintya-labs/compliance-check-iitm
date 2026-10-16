@@ -32,37 +32,35 @@
 
     <main>
         <!-- Course Addition / Modification Screen -->
-        <section id="editorScreen" class="form-section">
-            <h3 style="margin-top: 0; margin-bottom: 0.25rem;">Manage Completed Courses</h3>
-            <p>Add, edit, or remove your completed courses below. You can also upload a JSON array file to populate the list directly.</p>
+        <section id="editorScreen">
+            <!-- 1. Actions Section -->
+            <div class="form-section editor-actions-section">
+                <h3 style="margin-top: 0; margin-bottom: 0.25rem;">Manage Completed Courses</h3>
+                <p>Save and calculate compliance, export or import course records as JSON, or use an LLM prompt to convert a PDF gradecard.</p>
 
-            <div class="editor-actions">
-                <div class="action-row first-row">
-                    <div class="action-group">
-                        <button type="button" id="saveAndCalculateBtn" class="primary-btn">Save & Calculate Compliance</button>
-                        <button type="button" id="cancelEditBtn" class="action-btn">Back to Summary</button>
-                    </div>
-                    <div class="action-group action-group-right">
-                        <button type="button" id="uploadJsonBtn">Upload JSON</button>
-                        <input type="file" id="jsonFileInput" accept=".json" hidden>
-                        <button type="button" id="downloadJsonBtn">Download JSON</button>
+                <div class="editor-actions">
+                    <div class="action-row first-row">
+                        <div class="action-group">
+                            <button type="button" id="saveAndCalculateBtn" class="primary-btn">Save & Calculate Compliance</button>
+                            <button type="button" id="cancelEditBtn" class="action-btn">Back to Summary</button>
+                        </div>
+                        <div class="action-group action-group-right">
+                            <button type="button" id="uploadJsonBtn">Upload JSON</button>
+                            <input type="file" id="jsonFileInput" accept=".json" hidden>
+                            <button type="button" id="downloadJsonBtn">Download JSON</button>
+                        </div>
                     </div>
                 </div>
-                <div class="action-row">
-                    <button type="button" id="addRowBtn">Add Course</button>
-                    <button type="button" id="clearCoursesBtn">Clear All</button>
-                </div>
-            </div>
 
-            <!-- Collapsible LLM Prompt for PDF Gradecard Conversion -->
-            <details class="prompt-details">
-                <summary>LLM Prompt to Convert PDF Gradecard to JSON</summary>
-                <div class="prompt-box">
-                    <p class="prompt-instruction">
-                        Upload your PDF gradecard along with this prompt to your favorite LLM (such as ChatGPT, Claude, or Gemini) to extract your completed courses into the required JSON format, then import it using <strong>Upload JSON</strong> above.
-                    </p>
-                    <div class="prompt-textarea-wrap">
-                        <textarea id="llmPromptText" readonly rows="12">You are a precise academic transcript parser. I have attached my college gradecard / transcript PDF.
+                <!-- Collapsible LLM Prompt for PDF Gradecard Conversion -->
+                <details class="prompt-details">
+                    <summary>LLM Prompt to Convert PDF Gradecard to JSON</summary>
+                    <div class="prompt-box">
+                        <p class="prompt-instruction">
+                            Upload your PDF gradecard along with this prompt to your favorite LLM (such as ChatGPT, Claude, or Gemini) to extract your completed courses into the required JSON format, then import it using <strong>Upload JSON</strong> above.
+                        </p>
+                        <div class="prompt-textarea-wrap">
+                            <textarea id="llmPromptText" readonly rows="12">You are a precise academic transcript parser. I have attached my college gradecard / transcript PDF.
 Please extract all completed (passed) courses and output them as a JSON array matching this exact schema:
 
 [
@@ -88,24 +86,61 @@ Instructions:
    - "G": General, Life Skills, NCC/NSS/NSO (GN, ID, OB)
 6. "semester": Integer representing the semester number (1, 2, 3, etc.) when the course was taken.
 7. Output ONLY the raw JSON array. Do not wrap in markdown code blocks and do not add conversational preamble or postscript.</textarea>
-                        <button type="button" id="copyPromptBtn" class="action-btn copy-btn">Copy Prompt</button>
+                            <button type="button" id="copyPromptBtn" class="action-btn copy-btn">Copy Prompt</button>
+                        </div>
+                    </div>
+                </details>
+
+                <div id="editorNotice" class="alert alert-notice" style="display: none; margin: 0.75rem 0;"></div>
+            </div>
+
+            <!-- 2. Course Substitutions Section (Above Course Entry) -->
+            <div class="form-section substitutions-section">
+                <h3 style="margin-top: 0; margin-bottom: 0.25rem;">Course Substitutions</h3>
+                <p>Specify any approved alternative course replacing a core course or a named basket elective. Substituted courses cannot be counted towards other sections.</p>
+
+                <div class="substitution-actions">
+                    <button type="button" id="addSubstitutionBtn">Add Substitution</button>
+                </div>
+
+                <div class="substitutions-table-container">
+                    <div class="substitution-row-header">
+                        <span>Original Course Code</span>
+                        <span>Replacement Course Code</span>
+                        <span></span>
+                    </div>
+                    <div id="substitutionRowsList">
+                        <!-- Populated dynamically -->
                     </div>
                 </div>
-            </details>
 
-            <div id="editorNotice" class="alert alert-notice" style="display: none; margin: 0.75rem 0;"></div>
+                <datalist id="curriculumCoursesDatalist"></datalist>
+                <datalist id="coreCoursesDatalist"></datalist>
+                <datalist id="completedCoursesDatalist"></datalist>
+            </div>
 
-            <div class="courses-table-container">
-                <div class="course-row-header">
-                    <span>Course Code</span>
-                    <span>Course Name</span>
-                    <span>Credits</span>
-                    <span>Category</span>
-                    <span>Semester</span>
-                    <span></span>
+            <!-- 3. Course Entry Section -->
+            <div class="form-section course-entry-section">
+                <h3 style="margin-top: 0; margin-bottom: 0.25rem;">Course Entry</h3>
+                <p>Add, edit, or remove your completed courses below.</p>
+
+                <div class="course-entry-actions">
+                    <button type="button" id="addRowBtn">Add Course</button>
+                    <button type="button" id="clearCoursesBtn">Clear All</button>
                 </div>
-                <div id="courseRowsList">
-                    <!-- Populated dynamically -->
+
+                <div class="courses-table-container">
+                    <div class="course-row-header">
+                        <span>Course Code</span>
+                        <span>Course Name</span>
+                        <span>Credits</span>
+                        <span>Category</span>
+                        <span>Semester</span>
+                        <span></span>
+                    </div>
+                    <div id="courseRowsList">
+                        <!-- Populated dynamically -->
+                    </div>
                 </div>
             </div>
         </section>

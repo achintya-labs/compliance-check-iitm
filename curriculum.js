@@ -8,7 +8,6 @@ const curricula = {
             "MA1101": { name: "Functions of Several Variables", credits: 10, semester: 1 },
             "PH1010": { name: "Physics I", credits: 10, semester: 1 },
             "CY1001": { name: "Chemistry 1: Structure, Bonding & Reactivity", credits: 10, semester: 1 },
-            "EE1102": { name: "Introduction to Programming", credits: 12, semester: 1 },
             "ME1100": { name: "Thermodynamics", credits: 10, semester: 1 },
             "CY1002": { name: "Chemistry Lab I", credits: 3, semester: 1 },
             "ID1200": { name: "Ecology and Environment", credits: 0, semester: 1 },
@@ -44,6 +43,17 @@ const curricula = {
             "HS3050": { name: "Professional Ethics", credits: 0, semester: 8 }
         },
         requirements: [
+            {
+                id: "programming_basket",
+                name: "EE Programming Elective Basket",
+                matchType: "in_list",
+                matchValue: [
+                    "EE1102", "EE1103"
+                ],
+                minCredits: 12, 
+                minCourses: 1,
+                waterfallTo: "professional"
+            },
             {
                 id: "stream_basket",
                 name: "EE Stream Elective Basket",
