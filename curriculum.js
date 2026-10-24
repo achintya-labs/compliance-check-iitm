@@ -464,8 +464,8 @@ const curricula = {
     // Post-2024 Curricula
     "ee_btech_2024": {
         id: "ee_btech_2024",
-        name: "EE B.Tech (2024)",
-        fullName: "Electrical Engineering (B.Tech - 2024)",
+        name: "EE B.Tech (post 2024)",
+        fullName: "Electrical Engineering (B.Tech - post 2024)",
         totalCredits: 403,
         coreCourses: eeCoreCourses2024,
         requirements: [
@@ -547,8 +547,8 @@ const curricula = {
     },
     "ee_btech_hons_2024": {
         id: "ee_btech_hons_2024",
-        name: "EE B.Tech Honours (2024)",
-        fullName: "Electrical Engineering (B.Tech Honours - 2024)",
+        name: "EE B.Tech Honours (post 2024)",
+        fullName: "Electrical Engineering (B.Tech Honours - post 2024)",
         totalCredits: 430,
         coreCourses: eeCoreCourses2024,
         requirements: [
@@ -649,8 +649,8 @@ const curricula = {
     },
     "ee_dual_degree_2024": {
         id: "ee_dual_degree_2024",
-        name: "EE Dual Degree (2024)",
-        fullName: "Electrical Engineering (Dual Degree - 2024)",
+        name: "EE Dual Degree (post 2024)",
+        fullName: "Electrical Engineering (Dual Degree - post 2024)",
         totalCredits: 515,
         coreCourses: eeCoreCourses2024,
         requirements: [
@@ -751,8 +751,8 @@ const curricula = {
     },
     "ee_dual_degree_hons_2024": {
         id: "ee_dual_degree_hons_2024",
-        name: "EE Dual Degree Honours (2024)",
-        fullName: "Electrical Engineering (Dual Degree Honours - 2024)",
+        name: "EE Dual Degree Honours (post 2024)",
+        fullName: "Electrical Engineering (Dual Degree Honours - post 2024)",
         totalCredits: 542,
         coreCourses: eeCoreCourses2024,
         requirements: [
