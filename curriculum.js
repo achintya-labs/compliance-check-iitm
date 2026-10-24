@@ -490,8 +490,8 @@ const curricula = {
             {
                 id: "recreation_basket",
                 name: "Recreation Elective Basket",
-                matchType: "in_list",
-                matchValue: ["ID1300"],
+                matchType: "startsWith",
+                matchValue: "ID1300",
                 minCredits: 4,
                 waterfallTo: "free"
             },
@@ -573,8 +573,8 @@ const curricula = {
             {
                 id: "recreation_basket",
                 name: "Recreation Elective Basket",
-                matchType: "in_list",
-                matchValue: ["ID1300"],
+                matchType: "startsWith",
+                matchValue: "ID1300",
                 minCredits: 4,
                 waterfallTo: "free"
             },
@@ -675,8 +675,8 @@ const curricula = {
             {
                 id: "recreation_basket",
                 name: "Recreation Elective Basket",
-                matchType: "in_list",
-                matchValue: ["ID1300"],
+                matchType: "startsWith",
+                matchValue: "ID1300",
                 minCredits: 4,
                 waterfallTo: "free"
             },
@@ -777,8 +777,8 @@ const curricula = {
             {
                 id: "recreation_basket",
                 name: "Recreation Elective Basket",
-                matchType: "in_list",
-                matchValue: ["ID1300"],
+                matchType: "startsWith",
+                matchValue: "ID1300",
                 minCredits: 4,
                 waterfallTo: "free"
             },
