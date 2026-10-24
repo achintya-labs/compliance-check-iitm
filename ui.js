@@ -504,7 +504,7 @@ function addCourseRow(course = {}) {
     const category = (course.category || 'P').toUpperCase();
     const semester = course.semester !== undefined ? course.semester : '';
 
-    const standardCats = ['P', 'S', 'E', 'H', 'G', 'ANY'];
+    const standardCats = ['P', 'S', 'E', 'C', 'M', 'H', 'G', 'ANY'];
     let catOptionsHtml = standardCats.map(cat => 
         `<option value="${cat}" ${cat === category ? 'selected' : ''}>${cat}</option>`
     ).join('');
