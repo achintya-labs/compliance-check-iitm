@@ -302,7 +302,9 @@ function setupEditorControls() {
             addCourseRow();
             const rows = document.querySelectorAll('#courseRowsList .course-row');
             if (rows.length > 0) {
-                rows[rows.length - 1].querySelector('.row-code').focus();
+                const newRow = rows[rows.length - 1];
+                newRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                newRow.querySelector('.row-code').focus();
             }
         });
     }
@@ -773,9 +775,17 @@ function renderResults(results) {
         let completedText = "";
 
         if (section.isCore) {
-            isCompleted = req.applied >= req.needed;
-            targetText = `<div class="metric-val">${req.needed} Courses</div>`;
-            completedText = `<div class="metric-val">${req.applied} Courses</div>`;
+            const neededCredits = req.neededCredits !== undefined ? req.neededCredits : req.needed;
+            const appliedCredits = req.appliedCredits !== undefined ? req.appliedCredits : 0;
+            const neededCourses = req.neededCourses !== undefined ? req.neededCourses : (req.coursesUsed ? req.coursesUsed.length : 0);
+            const appliedCourses = req.appliedCourses !== undefined ? req.appliedCourses : (req.coursesUsed ? req.coursesUsed.filter(c => c.isCompleted).length : 0);
+
+            const creditsComplete = appliedCredits >= neededCredits;
+            const coursesComplete = appliedCourses >= neededCourses;
+            isCompleted = creditsComplete && coursesComplete;
+
+            targetText = `<div class="metric-val">${neededCredits} Credits</div><div class="metric-sub">(${neededCourses} Courses)</div>`;
+            completedText = `<div class="metric-val">${appliedCredits} Credits</div><div class="metric-sub">(${appliedCourses} Courses)</div>`;
         } else {
             let creditsComplete = req.applied >= req.needed;
             let coursesComplete = req.minCourses ? (req.coursesUsed.length >= req.minCourses) : true;
@@ -789,8 +799,6 @@ function renderResults(results) {
                 completedText += `<div class="metric-sub">(${req.coursesUsed.length} Courses)</div>`;
             }
         }
-
-        const unitLabel = section.isCore ? 'Courses' : 'Credits';
 
         const tr = document.createElement('tr');
         tr.classList.add('clickable-row');
@@ -832,7 +840,7 @@ function renderResults(results) {
                             <tr>
                                 <th scope="col">Code</th>
                                 <th scope="col">Name</th>
-                                <th scope="col">${unitLabel} Applied</th>
+                                <th scope="col">Credits Applied</th>
                                 ${section.isCore ? '<th scope="col" style="text-align: center;">Intended Sem</th>' : ''}
                                 <th scope="col" style="text-align: center;">Completed Sem</th>
                                 <th scope="col" style="text-align: center;">Status</th>

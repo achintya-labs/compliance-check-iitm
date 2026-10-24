@@ -43,10 +43,19 @@ function calculateCompliance(userCourses, curriculum, substitutions = []) {
 
     const handledSubs = new Set();
 
+    let totalCoreCredits = 0;
+    Object.values(curriculum.coreCourses).forEach(info => {
+        totalCoreCredits += (info.credits || 0);
+    });
+
     let results = {
         core: {
             name: "Core Courses",
-            needed: Object.keys(curriculum.coreCourses).length,
+            neededCredits: totalCoreCredits,
+            appliedCredits: 0,
+            neededCourses: Object.keys(curriculum.coreCourses).length,
+            appliedCourses: 0,
+            needed: totalCoreCredits,
             applied: 0,
             coursesUsed: []
         },
@@ -63,12 +72,14 @@ function calculateCompliance(userCourses, curriculum, substitutions = []) {
 
         // Check if replacement course was completed
         const replCourseIndex = replCode ? pool.findIndex(c => c.code === replCode && isCourseAvailable(c)) : -1;
-        // Check if core course was completed directly
-        const userCourseIndex = pool.findIndex(c => c.code === coreCode && isCourseAvailable(c));
+        // Check if core course was completed directly (ME1100 was replaced by ME3100 for batches prior to 2023)
+        const userCourseIndex = pool.findIndex(c => (c.code === coreCode || (coreCode === 'ME1100' && c.code === 'ME3100')) && isCourseAvailable(c));
 
         if (replCode && replCourseIndex !== -1) {
             const replCourse = pool[replCourseIndex];
-            results.core.applied += 1;
+            results.core.appliedCourses += 1;
+            results.core.appliedCredits += coreInfo.credits;
+            results.core.applied = results.core.appliedCredits;
             results.core.coursesUsed.push({
                 code: coreCode,
                 name: coreInfo.name || replCourse.name,
@@ -88,7 +99,9 @@ function calculateCompliance(userCourses, curriculum, substitutions = []) {
             handledSubs.add(sub);
         } else if (userCourseIndex !== -1) {
             const userCourse = pool[userCourseIndex];
-            results.core.applied += 1;
+            results.core.appliedCourses += 1;
+            results.core.appliedCredits += coreInfo.credits;
+            results.core.applied = results.core.appliedCredits;
             results.core.coursesUsed.push({
                 code: userCourse.code,
                 name: coreInfo.name || userCourse.name,
@@ -238,6 +251,14 @@ function calculateCompliance(userCourses, curriculum, substitutions = []) {
 }
 
 function matchesRequirement(course, req) {
+    if (req.matchType === 'level_or_above') {
+        if (req.prefix && !course.code.startsWith(req.prefix)) return false;
+        if (req.excludePrefix && course.code.startsWith(req.excludePrefix)) return false;
+        if (req.category && course.category !== req.category) return false;
+        const digits = course.code.match(/\d+/);
+        const num = digits ? parseInt(digits[0], 10) : 0;
+        return num >= (req.minLevel || 0);
+    }
     if (course.waterfalledTo) {
         return course.waterfalledTo === req.id;
     }
@@ -254,4 +275,8 @@ function matchesRequirement(course, req) {
         default:
             return false;
     }
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { calculateCompliance, matchesRequirement };
 }
