@@ -171,12 +171,19 @@ Instructions:
                 </div>
 
             </div>
+
+            <!-- Author Credits -->
+            <div class="form-section credits-box">
+                <p style="font-size: 1rem; margin-bottom: 7pt">Created by Achintya Raghavan</p>
+                <p style="margin-bottom: 0;">Feel free to contact me at <a href="mailto:ar@smail.iitm.ac.in">ar@smail.iitm.ac.in</a> to report any bugs/suggest features!</p>
+            </div>
         </section>
 
         <!-- Compliance Summary Screen -->
         <section id="summaryScreen" class="hidden">
             <div class="screen-action-bar">
                 <button type="button" id="modifyCoursesBtn" class="primary-btn prominent-action-btn">Modify Courses</button>
+                <button type="button" id="downloadPdfBtn" class="action-btn prominent-action-btn download-pdf-btn">Download PDF</button>
             </div>
 
             <!-- Notification center for notices, warnings, and errors -->
@@ -205,7 +212,17 @@ Instructions:
             <div id="detailsSection" aria-live="polite">
                 <!-- Details populated by JS -->
             </div>
+
+            <!-- Author Credits -->
+            <div class="form-section credits-box">
+                <p style="font-size: 1rem; margin-bottom: 7pt">Created by Achintya Raghavan</p>
+                <p style="margin-bottom: 0;">Feel free to contact me at <a href="mailto:ar@smail.iitm.ac.in">ar@smail.iitm.ac.in</a> to report any bugs/suggest features!</p>
+            </div>
+
         </section>
+
+        <!-- Custom View for Friendly A4 Printable / PDF Report -->
+        <div id="printReportView" class="print-report-view" aria-hidden="true"></div>
     </main>
 
     <script src="curriculum.js"></script>
