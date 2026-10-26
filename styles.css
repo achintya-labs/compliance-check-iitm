@@ -208,6 +208,24 @@ button:active, .action-btn:active {
     .primary-btn:hover {
         background: #444;
     }
+/* =====================
+   PROMINENT ACTION BARS
+===================== */
+.screen-action-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 1.25rem;
+}
+
+.prominent-action-btn {
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0.65rem 1.4rem;
+    border-radius: 8px;
+    min-width: 170px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    text-align: center;
 }
 
 /* =====================
@@ -439,16 +457,77 @@ button:disabled, .action-btn:disabled {
     min-width: 140px;
 }
 
-.course-entry-actions {
+.section-header-row {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    align-items: center;
-    margin: 0.75rem 0 1rem 0;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
 }
 
-.course-entry-actions button {
-    min-width: 140px;
+body.dark-mode .clear-all-btn,
+body:not(.light-mode) .clear-all-btn {
+    color: #bbb;
+    border-color: #444;
+}
+
+body.dark-mode .clear-all-btn:hover,
+body:not(.light-mode) .clear-all-btn:hover {
+    color: #f87171;
+    border-color: #f87171;
+}
+
+.add-course-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1.25rem 0 0.5rem 0;
+    width: 100%;
+}
+
+.add-course-plus-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    max-width: 44px;
+    border-radius: 50%;
+    border: 1px solid #d0d0d0;
+    background: #ffffff;
+    color: #222;
+    cursor: pointer;
+    padding: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.add-course-plus-btn svg {
+    display: block;
+}
+
+.add-course-plus-btn:hover {
+    background: #f2f2f2;
+    border-color: #999;
+}
+
+.add-course-plus-btn:active {
+    transform: scale(0.95);
+}
+
+body.dark-mode .add-course-plus-btn,
+body:not(.light-mode) .add-course-plus-btn {
+    background: #2a2a2a;
+    border-color: #444;
+    color: #e5e5e5;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .add-course-plus-btn:hover,
+body:not(.light-mode) .add-course-plus-btn:hover {
+    background: #353535;
+    border-color: #666;
 }
 
 .substitutions-table-container {
@@ -1363,14 +1442,40 @@ body.light-mode .theme-switch .moon {
         align-items: stretch;
     }
 
+    .screen-action-bar {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+
+    .prominent-action-btn {
+        width: 100% !important;
+        min-width: 100% !important;
+        font-size: 1rem;
+        padding: 0.75rem 1rem;
+        box-sizing: border-box;
+    }
+
+    .section-header-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+
+    .clear-all-btn {
+        width: 100% !important;
+        min-width: 100% !important;
+        text-align: center;
+        box-sizing: border-box;
+        padding: 0.55rem 0.9rem;
+    }
+
     .editor-actions button,
     .action-row button,
     .action-group button,
     #saveAndCalculateBtn,
-    #cancelEditBtn,
+    #modifyCoursesBtn,
     #uploadJsonBtn,
     #downloadJsonBtn,
-    #addRowBtn,
     #clearCoursesBtn,
     .copy-btn {
         width: 100% !important;
@@ -1379,6 +1484,23 @@ body.light-mode .theme-switch .moon {
         text-align: center;
         display: block;
         padding: 0.6rem 0.9rem;
+    }
+
+    .add-course-container {
+        margin: 1.25rem 0 0.5rem 0;
+        justify-content: center;
+    }
+
+    #addRowBtn.add-course-plus-btn,
+    .add-course-plus-btn {
+        width: 44px !important;
+        min-width: 44px !important;
+        max-width: 44px !important;
+        height: 44px !important;
+        border-radius: 50% !important;
+        display: inline-flex !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
     }
 
     /* Mobile Course Rows: Course number & name full width; 3 fields squished on one line */
@@ -1501,7 +1623,6 @@ body.light-mode .theme-switch .moon {
         font-size: 1.25rem;
     }
 
-    .course-entry-actions,
     .substitution-actions {
         display: flex;
         flex-direction: column;
@@ -1511,7 +1632,6 @@ body.light-mode .theme-switch .moon {
         align-items: stretch;
     }
 
-    .course-entry-actions button,
     .substitution-actions button,
     #addSubstitutionBtn {
         width: 100% !important;

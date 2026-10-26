@@ -17,7 +17,6 @@
                 <label for="curriculumSelect">Curriculum: </label>
                 <select id="curriculumSelect" aria-label="Select Curriculum"></select>
             </div>
-            <button id="modifyCoursesBtn" class="action-btn hidden" type="button">Modify Courses</button>
             <span class="theme-toggle" id="themeToggle" title="Toggle theme">
                 <label class="theme-switch" for="darkModeToggle" aria-label="Toggle theme">
                     <input type="checkbox" id="darkModeToggle">
@@ -33,22 +32,22 @@
     <main>
         <!-- Course Addition / Modification Screen -->
         <section id="editorScreen">
-            <!-- 1. Actions Section -->
+            <div class="screen-action-bar">
+                <button type="button" id="saveAndCalculateBtn" class="primary-btn prominent-action-btn">Save & Calculate</button>
+            </div>
+
+            <div id="editorNotice" class="alert alert-notice" style="display: none; margin: 0 0 1rem 0;"></div>
+
+            <!-- 1. Actions Section (JSON Import & Export) -->
             <div class="form-section editor-actions-section">
-                <h3 style="margin-top: 0; margin-bottom: 0.25rem;">Manage Completed Courses</h3>
-                <p>Save and calculate compliance, export or import course records as JSON, or use an LLM prompt to convert a PDF gradecard.</p>
+                <h3 style="margin-top: 0; margin-bottom: 0.25rem;">JSON Import & Export</h3>
+                <p>Upload or download your course records as a JSON file, or use an LLM prompt to convert a PDF gradecard.</p>
 
                 <div class="editor-actions">
-                    <div class="action-row first-row">
-                        <div class="action-group">
-                            <button type="button" id="saveAndCalculateBtn" class="primary-btn">Save & Calculate Compliance</button>
-                            <button type="button" id="cancelEditBtn" class="action-btn">Back to Summary</button>
-                        </div>
-                        <div class="action-group action-group-right">
-                            <button type="button" id="uploadJsonBtn">Upload JSON</button>
-                            <input type="file" id="jsonFileInput" accept=".json" hidden>
-                            <button type="button" id="downloadJsonBtn">Download JSON</button>
-                        </div>
+                    <div class="action-row">
+                        <button type="button" id="uploadJsonBtn">Upload JSON</button>
+                        <input type="file" id="jsonFileInput" accept=".json" hidden>
+                        <button type="button" id="downloadJsonBtn">Download JSON</button>
                     </div>
                 </div>
 
@@ -60,7 +59,7 @@
                             Upload your PDF gradecard along with this prompt to your favorite LLM (such as ChatGPT, Claude, or Gemini) to extract your completed courses into the required JSON format, then import it using <strong>Upload JSON</strong> above.
                         </p>
                         <div class="prompt-textarea-wrap">
-                            <textarea id="llmPromptText" readonly rows="12">You are a precise academic transcript parser. I have attached my college gradecard / transcript PDF.
+                            <textarea id="llmPromptText" readonly rows="14">You are a precise academic transcript parser. I have attached my college gradecard / transcript PDF.
 Please extract all completed (passed) courses and output them as a JSON array matching this exact schema:
 
 [
@@ -75,23 +74,24 @@ Please extract all completed (passed) courses and output them as a JSON array ma
 
 Instructions:
 1. Extract only completed courses with passing grades. Exclude any courses with failing or unearned grades (such as U, F, W, or incomplete).
-2. "code": Course code in uppercase with no spaces (e.g., "EE2001", "MA1101").
+2. "code": Course code in uppercase with no spaces (e.g., "EE2001", "MA1101", "CS1100").
 3. "name": Full course title (e.g., "Digital Systems & Lab").
-4. "credits": Integer number of earned credits (e.g., 10, 16).
+4. "credits": Integer number of earned credits (e.g., 9, 10, 12).
 5. "category": Single-letter uppercase category code:
    - "S": Basic Sciences (Mathematics, Physics, Chemistry, Biology: MA, PH, CY, BT)
-   - "E": Basic Engineering (Mechanics, Thermodynamics, Workshop: ME, CE, AM, WS)
+   - "E": Basic Engineering (Mechanics, Thermodynamics, Engineering Drawing: ME, CE, AM)
+   - "C": Computing (CS, DS)
+   - "M": Management (MS)
    - "H": Humanities and Social Sciences (HS)
    - "P": Professional / Departmental Core and Electives (EE)
    - "G": General, Life Skills, NCC/NSS/NSO (GN, ID, OB)
 6. "semester": Integer representing the semester number (1, 2, 3, etc.) when the course was taken.
-7. Output ONLY the raw JSON array. Do not wrap in markdown code blocks and do not add conversational preamble or postscript.</textarea>
+   - Note on Workshop / Summer Courses: Workshop courses (e.g., WS1301, WS1302) or courses taken during summer/winter terms must not increment the regular semester count. Assign them to the adjacent regular term (e.g., semester 1 or 2) so that subsequent fall/spring semester numbering is not shifted.
+7. Output format: If your platform supports generating downloadable files (such as Code Interpreter / Advanced Data Analysis / artifacts), please provide a downloadable "completed_courses.json" file. If file downloads are not supported, output ONLY the raw JSON array text without markdown code blocks and without any conversational preamble or postscript.</textarea>
                             <button type="button" id="copyPromptBtn" class="action-btn copy-btn">Copy Prompt</button>
                         </div>
                     </div>
                 </details>
-
-                <div id="editorNotice" class="alert alert-notice" style="display: none; margin: 0.75rem 0;"></div>
             </div>
 
             <!-- 2. Course Substitutions Section (Above Course Entry) -->
@@ -121,8 +121,13 @@ Instructions:
 
             <!-- 3. Course Entry Section -->
             <div class="form-section course-entry-section">
-                <h3 style="margin-top: 0; margin-bottom: 0.25rem;">Course Entry</h3>
-                <p>Add, edit, or remove your completed courses below.</p>
+                <div class="section-header-row">
+                    <div>
+                        <h3 style="margin-top: 0; margin-bottom: 0.25rem;">Course Entry</h3>
+                        <p style="margin-bottom: 0;">Add, edit, or remove your completed courses below.</p>
+                    </div>
+                    <button type="button" id="clearCoursesBtn" class="action-btn">Clear All</button>
+                </div>
 
                 <div class="courses-table-container">
                     <div class="course-row-header">
@@ -138,9 +143,13 @@ Instructions:
                     </div>
                 </div>
 
-                <div class="course-entry-actions">
-                    <button type="button" id="addRowBtn">Add Course</button>
-                    <button type="button" id="clearCoursesBtn">Clear All</button>
+                <div class="add-course-container">
+                    <button type="button" id="addRowBtn" class="add-course-plus-btn" aria-label="Add Course" title="Add Course">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
                 </div>
 
             </div>
@@ -148,6 +157,10 @@ Instructions:
 
         <!-- Compliance Summary Screen -->
         <section id="summaryScreen" class="hidden">
+            <div class="screen-action-bar">
+                <button type="button" id="modifyCoursesBtn" class="primary-btn prominent-action-btn">Modify Courses</button>
+            </div>
+
             <!-- Notification center for notices, warnings, and errors -->
             <div id="messageBoard" class="message-board" aria-live="polite"></div>
 

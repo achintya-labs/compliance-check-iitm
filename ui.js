@@ -232,23 +232,13 @@ function getCurrentCurriculum() {
 function showScreen(screen) {
     const editorScreen = document.getElementById('editorScreen');
     const summaryScreen = document.getElementById('summaryScreen');
-    const modifyBtn = document.getElementById('modifyCoursesBtn');
-    const cancelBtn = document.getElementById('cancelEditBtn');
 
     if (screen === 'summary') {
         editorScreen.classList.add('hidden');
         summaryScreen.classList.remove('hidden');
-        if (modifyBtn) modifyBtn.classList.remove('hidden');
     } else {
         editorScreen.classList.remove('hidden');
         summaryScreen.classList.add('hidden');
-        if (modifyBtn) modifyBtn.classList.add('hidden');
-        if (cancelBtn) {
-            cancelBtn.classList.remove('hidden');
-            const hasSaved = currentCourses && currentCourses.length > 0;
-            cancelBtn.disabled = !hasSaved;
-            cancelBtn.title = hasSaved ? "Return to compliance summary" : "No saved compliance summary available yet";
-        }
     }
 }
 
@@ -342,7 +332,7 @@ function setupEditorControls() {
                     populateSubstitutionRows(subsToLoad);
                     updateDatalists();
                     const subMsg = subsToLoad.length > 0 ? ` and ${subsToLoad.length} substitution(s)` : '';
-                    showEditorNotice(`Loaded ${coursesToLoad.length} course(s)${subMsg} from JSON. Review or edit, then click 'Save & Calculate Compliance'.`, 'notice');
+                    showEditorNotice(`Loaded ${coursesToLoad.length} course(s)${subMsg} from JSON. Review or edit, then click 'Save & Calculate'.`, 'notice');
                 } catch (err) {
                     showEditorNotice(`Failed to parse JSON file: ${err.message}`, 'error');
                     console.error(err);
@@ -395,9 +385,8 @@ function setupEditorControls() {
     if (clearCoursesBtn) {
         clearCoursesBtn.addEventListener('click', () => {
             populateEditorRows([]);
-            populateSubstitutionRows([]);
             updateDatalists();
-            showEditorNotice("Cleared all course rows and substitutions.", 'notice');
+            showEditorNotice("Cleared all course rows.", 'notice');
         });
     }
 
@@ -420,15 +409,6 @@ function setupEditorControls() {
             const curr = getCurrentCurriculum();
             runCompliance(currentCourses, curr, currentSubstitutions);
             showScreen('summary');
-        });
-    }
-
-    const cancelEditBtn = document.getElementById('cancelEditBtn');
-    if (cancelEditBtn) {
-        cancelEditBtn.addEventListener('click', () => {
-            if (currentCourses && currentCourses.length > 0) {
-                showScreen('summary');
-            }
         });
     }
 
