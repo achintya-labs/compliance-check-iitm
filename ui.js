@@ -1,11 +1,11 @@
 let currentCourses = [];
 let currentSubstitutions = [];
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", async function() {
     setupDarkMode();
     initializeCurriculumSelector();
     setupEditorControls();
-    loadInitialState();
+    await loadInitialState();
 });
 
 /* =========================================================
@@ -194,25 +194,36 @@ function initializeCurriculumSelector() {
     if (!select) return;
 
     select.innerHTML = '';
-    const availableCurricula = typeof curricula !== 'undefined' ? curricula : { "ee_btech": curriculum };
+    const list = (typeof curriculaList !== 'undefined' && Array.isArray(curriculaList))
+        ? curriculaList
+        : (typeof curricula !== 'undefined' ? Object.keys(curricula).map(id => ({ id, name: curricula[id].name || id })) : [{ id: 'ee_btech', name: 'EE B.Tech (pre 2023)' }]);
 
-    Object.keys(availableCurricula).forEach(id => {
+    list.forEach(item => {
         const opt = document.createElement('option');
-        opt.value = id;
-        opt.textContent = availableCurricula[id].name || id;
+        opt.value = item.id;
+        opt.textContent = item.name || item.id;
         select.appendChild(opt);
     });
 
     const savedCurriculum = loadCurriculumFromCookie();
-    if (availableCurricula[savedCurriculum]) {
+    if (list.some(item => item.id === savedCurriculum)) {
         select.value = savedCurriculum;
     }
 
-    select.addEventListener('change', () => {
-        saveCurriculumToCookie(select.value);
-        updateDatalists();
-        if (currentCourses && currentCourses.length > 0) {
-            runCompliance(currentCourses, getCurrentCurriculum(), currentSubstitutions);
+    select.addEventListener('change', async () => {
+        const selectedId = select.value;
+        saveCurriculumToCookie(selectedId);
+        try {
+            if (typeof loadCurriculum === 'function') {
+                await loadCurriculum(selectedId);
+            }
+            updateDatalists();
+            if (currentCourses && currentCourses.length > 0) {
+                runCompliance(currentCourses, getCurrentCurriculum(), currentSubstitutions);
+            }
+        } catch (err) {
+            console.error('Failed to load curriculum:', err);
+            showEditorNotice(`Failed to load curriculum ${selectedId}: ${err.message}`, 'error');
         }
     });
 }
@@ -222,6 +233,9 @@ function getCurrentCurriculum() {
     const selectedId = select ? select.value : 'ee_btech';
     if (typeof curricula !== 'undefined' && curricula[selectedId]) {
         return curricula[selectedId];
+    }
+    if (typeof getLoadedCurriculum === 'function') {
+        return getLoadedCurriculum(selectedId);
     }
     return typeof curriculum !== 'undefined' ? curriculum : null;
 }
@@ -242,7 +256,17 @@ function showScreen(screen) {
     }
 }
 
-function loadInitialState() {
+async function loadInitialState() {
+    const savedCurriculumId = loadCurriculumFromCookie() || 'ee_btech';
+    if (typeof loadCurriculum === 'function') {
+        try {
+            await loadCurriculum(savedCurriculumId);
+        } catch (err) {
+            console.warn(`Could not load curriculum ${savedCurriculumId} via fetch:`, err);
+            showEditorNotice(`Unable to load curriculum file (${err.message}). If using local files directly, please run a local server (e.g. 'python3 -m http.server').`, 'error');
+        }
+    }
+
     const savedCourses = loadCoursesFromCookie();
     currentSubstitutions = loadSubstitutionsFromCookie() || [];
 
@@ -259,6 +283,28 @@ function loadInitialState() {
         showScreen('editor');
     }
     updateDatalists();
+}
+
+function loadParsedCourseData(parsed, sourceLabel = 'JSON') {
+    let coursesToLoad = [];
+    let subsToLoad = [];
+
+    if (Array.isArray(parsed)) {
+        coursesToLoad = parsed;
+    } else if (parsed && Array.isArray(parsed.courses)) {
+        coursesToLoad = parsed.courses;
+        if (Array.isArray(parsed.substitutions)) {
+            subsToLoad = parsed.substitutions;
+        }
+    } else {
+        throw new Error("JSON file must contain an array of course objects or an object with 'courses'.");
+    }
+
+    populateEditorRows(coursesToLoad, /* append = */ false);
+    populateSubstitutionRows(subsToLoad);
+    updateDatalists();
+    const subMsg = subsToLoad.length > 0 ? ` and ${subsToLoad.length} substitution(s)` : '';
+    showEditorNotice(`Loaded ${coursesToLoad.length} course(s)${subMsg} from ${sourceLabel}. Review or edit, then click 'Save & Calculate'.`, 'notice');
 }
 
 /* =========================================================
@@ -314,25 +360,7 @@ function setupEditorControls() {
             reader.onload = function(e) {
                 try {
                     const parsed = JSON.parse(e.target.result);
-                    let coursesToLoad = [];
-                    let subsToLoad = [];
-
-                    if (Array.isArray(parsed)) {
-                        coursesToLoad = parsed;
-                    } else if (parsed && Array.isArray(parsed.courses)) {
-                        coursesToLoad = parsed.courses;
-                        if (Array.isArray(parsed.substitutions)) {
-                            subsToLoad = parsed.substitutions;
-                        }
-                    } else {
-                        throw new Error("JSON file must contain an array of course objects or an object with 'courses'.");
-                    }
-
-                    populateEditorRows(coursesToLoad, /* append = */ false);
-                    populateSubstitutionRows(subsToLoad);
-                    updateDatalists();
-                    const subMsg = subsToLoad.length > 0 ? ` and ${subsToLoad.length} substitution(s)` : '';
-                    showEditorNotice(`Loaded ${coursesToLoad.length} course(s)${subMsg} from JSON. Review or edit, then click 'Save & Calculate'.`, 'notice');
+                    loadParsedCourseData(parsed, `file "${file.name}"`);
                 } catch (err) {
                     showEditorNotice(`Failed to parse JSON file: ${err.message}`, 'error');
                     console.error(err);
@@ -340,6 +368,114 @@ function setupEditorControls() {
                 jsonFileInput.value = '';
             };
             reader.readAsText(file);
+        });
+    }
+
+    const dropZone = document.getElementById('jsonDropZone');
+    let isDropZoneHovered = false;
+
+    if (dropZone) {
+        dropZone.addEventListener('mouseenter', () => {
+            isDropZoneHovered = true;
+        });
+
+        dropZone.addEventListener('mouseleave', () => {
+            isDropZoneHovered = false;
+            dropZone.blur();
+        });
+
+        dropZone.addEventListener('click', () => {
+            const fileInput = jsonFileInput || document.getElementById('jsonFileInput');
+            if (fileInput) {
+                fileInput.click();
+            }
+        });
+
+        dropZone.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                const fileInput = jsonFileInput || document.getElementById('jsonFileInput');
+                if (fileInput) {
+                    fileInput.click();
+                }
+            }
+        });
+
+        const handlePasteString = (text, sourceLabel = 'pasted JSON') => {
+            if (!text || !text.trim()) {
+                showEditorNotice("No JSON content found in clipboard to paste.", 'error');
+                return;
+            }
+            try {
+                const parsed = JSON.parse(text.trim());
+                loadParsedCourseData(parsed, sourceLabel);
+            } catch (err) {
+                showEditorNotice(`Failed to parse ${sourceLabel}: ${err.message}`, 'error');
+                console.error(err);
+            }
+        };
+
+        const onPasteEvent = (e) => {
+            const clipboardData = e.clipboardData || window.clipboardData;
+            if (!clipboardData) return;
+            const text = clipboardData.getData('text');
+            if (text) {
+                e.preventDefault();
+                handlePasteString(text, 'pasted JSON');
+            }
+        };
+
+        dropZone.addEventListener('paste', onPasteEvent);
+
+        document.addEventListener('paste', (e) => {
+            const targetTag = e.target && e.target.tagName;
+            if (targetTag === 'INPUT' || targetTag === 'TEXTAREA') {
+                return;
+            }
+            if (isDropZoneHovered || document.activeElement === dropZone) {
+                onPasteEvent(e);
+            }
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.add('drag-over');
+            });
+        });
+
+        ['dragleave', 'dragend', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.remove('drag-over');
+            });
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            if (!dt) return;
+
+            if (dt.files && dt.files.length > 0) {
+                const file = dt.files[0];
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    try {
+                        const parsed = JSON.parse(evt.target.result);
+                        loadParsedCourseData(parsed, `dropped file "${file.name}"`);
+                    } catch (err) {
+                        showEditorNotice(`Failed to parse dropped JSON file: ${err.message}`, 'error');
+                        console.error(err);
+                    }
+                };
+                reader.readAsText(file);
+            } else {
+                const text = dt.getData('text');
+                if (text) {
+                    handlePasteString(text, 'dropped JSON text');
+                }
+            }
         });
     }
 
@@ -392,7 +528,7 @@ function setupEditorControls() {
 
     const saveAndCalculateBtn = document.getElementById('saveAndCalculateBtn');
     if (saveAndCalculateBtn) {
-        saveAndCalculateBtn.addEventListener('click', () => {
+        saveAndCalculateBtn.addEventListener('click', async () => {
             const courses = getCoursesFromEditor();
             if (courses.length === 0) {
                 showEditorNotice("Please add at least one course before saving.", 'error');
@@ -406,7 +542,17 @@ function setupEditorControls() {
             saveCoursesToCookie(currentCourses);
             saveSubstitutionsToCookie(currentSubstitutions);
 
-            const curr = getCurrentCurriculum();
+            let curr = getCurrentCurriculum();
+            if (!curr && typeof loadCurriculum === 'function') {
+                const select = document.getElementById('curriculumSelect');
+                const selectedId = select ? select.value : 'ee_btech';
+                try {
+                    curr = await loadCurriculum(selectedId);
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+
             runCompliance(currentCourses, curr, currentSubstitutions);
             showScreen('summary');
         });

@@ -1,0 +1,58 @@
+[
+  {
+    "id": "ee_btech",
+    "name": "EE B.Tech (pre 2023)",
+    "fullName": "Electrical Engineering (B.Tech - pre 2023)",
+    "totalCredits": 430,
+    "file": "curricula/ee_btech.json"
+  },
+  {
+    "id": "ee_btech_hons",
+    "name": "EE B.Tech Honours (pre 2023)",
+    "fullName": "Electrical Engineering (B.Tech Honours - pre 2023)",
+    "totalCredits": 457,
+    "file": "curricula/ee_btech_hons.json"
+  },
+  {
+    "id": "ee_dual_degree",
+    "name": "EE Dual Degree (pre 2023)",
+    "fullName": "Electrical Engineering (Dual Degree - pre 2023)",
+    "totalCredits": 551,
+    "file": "curricula/ee_dual_degree.json"
+  },
+  {
+    "id": "ee_dual_degree_hons",
+    "name": "EE Dual Degree Honours (pre 2023)",
+    "fullName": "Electrical Engineering (Dual Degree Honours - pre 2023)",
+    "totalCredits": 578,
+    "file": "curricula/ee_dual_degree_hons.json"
+  },
+  {
+    "id": "ee_btech_2024",
+    "name": "EE B.Tech (post 2024)",
+    "fullName": "Electrical Engineering (B.Tech - post 2024)",
+    "totalCredits": 403,
+    "file": "curricula/ee_btech_2024.json"
+  },
+  {
+    "id": "ee_btech_hons_2024",
+    "name": "EE B.Tech Honours (post 2024)",
+    "fullName": "Electrical Engineering (B.Tech Honours - post 2024)",
+    "totalCredits": 430,
+    "file": "curricula/ee_btech_hons_2024.json"
+  },
+  {
+    "id": "ee_dual_degree_2024",
+    "name": "EE Dual Degree (post 2024)",
+    "fullName": "Electrical Engineering (Dual Degree - post 2024)",
+    "totalCredits": 515,
+    "file": "curricula/ee_dual_degree_2024.json"
+  },
+  {
+    "id": "ee_dual_degree_hons_2024",
+    "name": "EE Dual Degree Honours (post 2024)",
+    "fullName": "Electrical Engineering (Dual Degree Honours - post 2024)",
+    "totalCredits": 542,
+    "file": "curricula/ee_dual_degree_hons_2024.json"
+  }
+]

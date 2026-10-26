@@ -41,25 +41,17 @@
             <!-- 1. Actions Section (JSON Import & Export) -->
             <div class="form-section editor-actions-section">
                 <h3 style="margin-top: 0; margin-bottom: 0.25rem;">JSON Import & Export</h3>
-                <p>Upload or download your course records as a JSON file, or use an LLM prompt to convert a PDF gradecard.</p>
-
-                <div class="editor-actions">
-                    <div class="action-row">
-                        <button type="button" id="uploadJsonBtn">Upload JSON</button>
-                        <input type="file" id="jsonFileInput" accept=".json" hidden>
-                        <button type="button" id="downloadJsonBtn">Download JSON</button>
-                    </div>
-                </div>
-
+                <p>Upload or download your course records as a JSON file.</p>
+                <p><b>Tip</b>: Use the below LLM prompt to convert your gradecard/courses screenshot to the required format.</p>
                 <!-- Collapsible LLM Prompt for PDF Gradecard Conversion -->
                 <details class="prompt-details">
-                    <summary>LLM Prompt to Convert PDF Gradecard to JSON</summary>
+                    <summary>LLM Prompt</summary>
                     <div class="prompt-box">
                         <p class="prompt-instruction">
-                            Upload your PDF gradecard along with this prompt to your favorite LLM (such as ChatGPT, Claude, or Gemini) to extract your completed courses into the required JSON format, then import it using <strong>Upload JSON</strong> above.
+                            Upload your PDF gradecard or courses screenshot along with this prompt to your favorite LLM (such as ChatGPT, Claude, or Gemini) to extract your completed courses into the required JSON format, then import it using <strong>Upload JSON</strong> or paste it into the box above.
                         </p>
                         <div class="prompt-textarea-wrap">
-                            <textarea id="llmPromptText" readonly rows="14">You are a precise academic transcript parser. I have attached my college gradecard / transcript PDF.
+                            <textarea id="llmPromptText" readonly rows="14">You are a precise academic transcript parser. I have attached my college gradecard / transcript data.
 Please extract all completed (passed) courses and output them as a JSON array matching this exact schema:
 
 [
@@ -73,7 +65,7 @@ Please extract all completed (passed) courses and output them as a JSON array ma
 ]
 
 Instructions:
-1. Extract only completed courses with passing grades. Exclude any courses with failing or unearned grades (such as U, F, W, or incomplete).
+1. Extract only ongoing courses (no grades) or completed courses with passing grades. Exclude any courses with failing or unearned grades (such as U, F, W, or I).
 2. "code": Course code in uppercase with no spaces (e.g., "EE2001", "MA1101", "CS1100").
 3. "name": Full course title (e.g., "Digital Systems & Lab").
 4. "credits": Integer number of earned credits (e.g., 9, 10, 12).
@@ -92,6 +84,26 @@ Instructions:
                         </div>
                     </div>
                 </details>
+
+                <div class="editor-actions">
+                    <div class="action-row">
+                        <button type="button" id="uploadJsonBtn">Upload JSON</button>
+                        <input type="file" id="jsonFileInput" accept=".json" hidden>
+                        <button type="button" id="downloadJsonBtn">Download JSON</button>
+                    </div>
+                </div>
+
+                <!-- JSON Drop / Paste Zone -->
+                <div id="jsonDropZone" class="json-drop-zone" tabindex="0" role="button" aria-label="Paste JSON here or drag JSON file">
+                    <div class="drop-zone-content">
+                        <svg class="drop-zone-icon" viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="1.75" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <span class="drop-zone-text">Paste JSON here or drag JSON file</span>
+                    </div>
+                </div>
             </div>
 
             <!-- 2. Course Substitutions Section (Above Course Entry) -->
@@ -99,9 +111,7 @@ Instructions:
                 <h3 style="margin-top: 0; margin-bottom: 0.25rem;">Course Substitutions</h3>
                 <p>Specify any approved alternative course replacing a core course or a named basket elective. Substituted courses cannot be counted towards other sections.</p>
 
-                <div class="substitution-actions">
-                    <button type="button" id="addSubstitutionBtn">Add Substitution</button>
-                </div>
+
 
                 <div class="substitutions-table-container">
                     <div class="substitution-row-header">
@@ -112,6 +122,14 @@ Instructions:
                     <div id="substitutionRowsList">
                         <!-- Populated dynamically -->
                     </div>
+                <div class="add-course-container">
+                    <button type="button" id="addSubstitutionBtn" class="add-course-plus-btn" aria-label="Add Course" title="Add Course">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                </div>
                 </div>
 
                 <datalist id="curriculumCoursesDatalist"></datalist>

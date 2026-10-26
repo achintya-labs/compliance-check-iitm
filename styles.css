@@ -279,6 +279,68 @@ button:disabled, .action-btn:disabled {
     body:not(.light-mode) button:disabled:hover {
         background: #3a3a3a;
     }
+/* =====================
+   JSON DROP / PASTE ZONE
+===================== */
+.json-drop-zone {
+    border: 2px dashed #d0d0d0;
+    border-radius: 8px;
+    padding: 1.5rem 1rem;
+    background: #fafafa;
+    margin: 0.85rem 0 1rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+    user-select: none;
+}
+
+.json-drop-zone:hover,
+.json-drop-zone:focus-visible,
+.json-drop-zone.drag-over {
+    border-color: #222;
+    background: #f3f3f3;
+}
+
+.json-drop-zone.drag-over {
+    border-color: #222;
+    background: #ebebeb;
+}
+
+.drop-zone-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    pointer-events: none;
+}
+
+.drop-zone-icon {
+    color: #666;
+    transition: color 0.15s ease;
+}
+
+.drop-zone-text {
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: #555;
+    transition: color 0.15s ease;
+}
+
+.json-drop-zone:hover .drop-zone-icon,
+.json-drop-zone:focus-visible .drop-zone-icon,
+.json-drop-zone.drag-over .drop-zone-icon {
+    color: #111;
+}
+
+.json-drop-zone:hover .drop-zone-text,
+.json-drop-zone:focus-visible .drop-zone-text,
+.json-drop-zone.drag-over .drop-zone-text {
+    color: #111;
 }
 
 /* =====================
@@ -1222,6 +1284,56 @@ body.dark-mode .alert {
     color: #e5e5e5;
 }
 
+body.dark-mode .json-drop-zone,
+body:not(.light-mode) .json-drop-zone {
+    border-color: #444;
+    background: #202020;
+}
+
+body.dark-mode .json-drop-zone:hover,
+body.dark-mode .json-drop-zone:focus-visible,
+body.dark-mode .json-drop-zone.drag-over,
+body:not(.light-mode) .json-drop-zone:hover,
+body:not(.light-mode) .json-drop-zone:focus-visible,
+body:not(.light-mode) .json-drop-zone.drag-over {
+    border-color: #888;
+    background: #282828;
+}
+
+body.dark-mode .json-drop-zone.drag-over,
+body:not(.light-mode) .json-drop-zone.drag-over {
+    border-color: #aaa;
+    background: #2f2f2f;
+}
+
+body.dark-mode .drop-zone-icon,
+body:not(.light-mode) .drop-zone-icon {
+    color: #888;
+}
+
+body.dark-mode .drop-zone-text,
+body:not(.light-mode) .drop-zone-text {
+    color: #aaa;
+}
+
+body.dark-mode .json-drop-zone:hover .drop-zone-icon,
+body.dark-mode .json-drop-zone:focus-visible .drop-zone-icon,
+body.dark-mode .json-drop-zone.drag-over .drop-zone-icon,
+body:not(.light-mode) .json-drop-zone:hover .drop-zone-icon,
+body:not(.light-mode) .json-drop-zone:focus-visible .drop-zone-icon,
+body:not(.light-mode) .json-drop-zone.drag-over .drop-zone-icon {
+    color: #e5e5e5;
+}
+
+body.dark-mode .json-drop-zone:hover .drop-zone-text,
+body.dark-mode .json-drop-zone:focus-visible .drop-zone-text,
+body.dark-mode .json-drop-zone.drag-over .drop-zone-text,
+body:not(.light-mode) .json-drop-zone:hover .drop-zone-text,
+body:not(.light-mode) .json-drop-zone:focus-visible .drop-zone-text,
+body:not(.light-mode) .json-drop-zone.drag-over .drop-zone-text {
+    color: #f0f0f0;
+}
+
 body.dark-mode .prompt-details,
 body:not(.light-mode) .prompt-details {
     background: #252525;
@@ -1484,6 +1596,10 @@ body.light-mode .theme-switch .moon {
         text-align: center;
         display: block;
         padding: 0.6rem 0.9rem;
+    }
+
+    .json-drop-zone {
+        padding: 1.25rem 0.75rem;
     }
 
     .add-course-container {
