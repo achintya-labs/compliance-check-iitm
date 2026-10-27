@@ -1,11 +1,9 @@
 {
-  "id": "ee_btech",
-  "name": "EE B.Tech (pre 2023)",
-  "fullName": "Electrical Engineering (B.Tech - pre 2023)",
-  "totalCredits": 430,
+  "fullName": "Electrical Engineering (B.Tech - post 2024)",
+  "totalCredits": 403,
   "coreCourses": {
     "MA1101": {
-      "name": "Functions of Several Variables",
+      "name": "Calculus",
       "credits": 10,
       "semester": 1
     },
@@ -14,130 +12,140 @@
       "credits": 10,
       "semester": 1
     },
-    "CY1001": {
-      "name": "Chemistry 1: Structure, Bonding & Reactivity",
-      "credits": 10,
-      "semester": 1
-    },
     "ME1100": {
       "name": "Thermodynamics",
       "credits": 10,
       "semester": 1
     },
-    "CY1002": {
-      "name": "Chemistry Lab I",
-      "credits": 3,
-      "semester": 1
-    },
-    "ID1200": {
-      "name": "Ecology and Environment",
-      "credits": 0,
-      "semester": 1
-    },
-    "GN1101": {
-      "name": "Life Skills 1",
-      "credits": 0,
+    "PH1030": {
+      "name": "Physics Lab",
+      "credits": 4,
       "semester": 1
     },
     "WS1301": {
-      "name": "Workshop-I",
+      "name": "Workshop I",
       "credits": 3,
       "semester": 1
     },
-    "MA1102": {
-      "name": "Series and Matrices",
-      "credits": 10,
+    "GN1101": {
+      "name": "Life Skills",
+      "credits": 4,
+      "semester": 1
+    },
+    "MA2101": {
+      "name": "Linear Algebra via Matrices",
+      "credits": 9,
       "semester": 2
     },
     "PH1020": {
-      "name": "Physics II",
+      "name": "Physics II (Electromagnetism)",
       "credits": 10,
       "semester": 2
     },
-    "EE2001": {
-      "name": "Digital Systems & Lab",
-      "credits": 16,
+    "EE2002": {
+      "name": "Digital Systems",
+      "credits": 10,
+      "semester": 2
+    },
+    "EE2702": {
+      "name": "Digital Systems Lab",
+      "credits": 5,
       "semester": 2
     },
     "EE1101": {
-      "name": "Signals and Systems",
+      "name": "Signals & Systems",
       "credits": 10,
       "semester": 2
     },
-    "GN1102": {
-      "name": "Life Skills 2",
-      "credits": 0,
-      "semester": 2
-    },
-    "PH1030": {
-      "name": "Physics Laboratory I",
-      "credits": 4,
-      "semester": 2
-    },
     "WS1302": {
-      "name": "Workshop-II",
+      "name": "Workshop II",
       "credits": 3,
       "semester": 2
+    },
+    "GN1102": {
+      "name": "Life Skills",
+      "credits": 2,
+      "semester": 2
+    },
+    "EE2021": {
+      "name": "Materials Science for Electrical Engineers",
+      "credits": 10,
+      "semester": 3
+    },
+    "EE2015": {
+      "name": "Electric Circuits & Networks",
+      "credits": 10,
+      "semester": 3
+    },
+    "EE2016": {
+      "name": "Microprocessor Theory + Lab",
+      "credits": 11,
+      "semester": 3
+    },
+    "EE2703": {
+      "name": "Applied Programming Lab",
+      "credits": 5,
+      "semester": 3
     },
     "EE2025": {
       "name": "Engineering Electromagnetics",
       "credits": 10,
       "semester": 3
     },
-    "EE2015": {
-      "name": "Electric Circuits & Networks",
-      "credits": 11,
+    "ID1200": {
+      "name": "Ecology and Environment",
+      "credits": 2,
       "semester": 3
     },
-    "EE2016": {
-      "name": "Microprocessor Theory+Lab",
-      "credits": 12,
-      "semester": 3
+    "EE2007": {
+      "name": "Analog Systems",
+      "credits": 10,
+      "semester": 4
     },
-    "EE2703": {
-      "name": "Applied Programming Lab.",
-      "credits": 6,
-      "semester": 3
+    "EE2707": {
+      "name": "Analog Systems Lab",
+      "credits": 5,
+      "semester": 4
     },
     "EE2004": {
       "name": "Digital Signal Processing",
-      "credits": 11,
+      "credits": 10,
       "semester": 4
     },
-    "EE2005": {
-      "name": "Electrical Machines and Lab",
-      "credits": 15,
+    "EE2006": {
+      "name": "Electrical Machines",
+      "credits": 10,
       "semester": 4
     },
-    "EE2019": {
-      "name": "Analog Systems and Lab",
-      "credits": 17,
+    "EE2706": {
+      "name": "Electrical Machines Lab",
+      "credits": 5,
       "semester": 4
     },
     "EE3001": {
       "name": "Solid State Devices",
-      "credits": 11,
+      "credits": 10,
       "semester": 4
     },
     "EE3004": {
-      "name": "Control Engineering",
-      "credits": 11,
+      "name": "Control Engg",
+      "credits": 10,
       "semester": 5
     },
     "EE3006": {
-      "name": "Principles of Measurement",
+      "name": "Principles of Measurement & Lab",
       "credits": 8,
       "semester": 5
     },
-    "BT1010": {
-      "name": "Life Sciences",
-      "credits": 9,
+    "CY4050": {
+      "name": "Electrochemical Technology",
+      "credits": 10,
       "semester": 5
     },
     "HS3050": {
       "name": "Professional Ethics",
-      "credits": 0,
-      "semester": 8
+      "credits": 2,
+      "semester": 5
     }
   },
   "requirements": [
@@ -149,7 +157,7 @@
         "EE1102",
         "EE1103"
       ],
-      "minCredits": 12,
+      "minCredits": 11,
       "minCourses": 1,
       "waterfallTo": "professional"
     },
@@ -161,20 +169,27 @@
         "EE2003",
         "EE3007",
         "EE3002",
-        "EE3110",
+        "EE5180",
         "EE3003",
         "EE3203",
         "EE5312",
         "EE3402",
-        "EE4502",
+        "EE5413",
         "EE3005",
         "EP3200",
-        "EE5311",
-        "EE4901"
+        "EE5311"
       ],
-      "minCredits": 36,
+      "minCredits": 40,
       "minCourses": 4,
       "waterfallTo": "professional"
+    },
+    {
+      "id": "recreation_basket",
+      "name": "Recreation Elective Basket",
+      "matchType": "startsWith",
+      "matchValue": "ID1300",
+      "minCredits": 4,
+      "waterfallTo": "free"
     },
     {
       "id": "ncc_nco_nss_basket",
@@ -183,31 +198,31 @@
       "matchValue": [
         "NC1010",
         "NS1020",
-        "NS1030"
+        "NS1030",
+        "NCA"
       ],
-      "minCredits": 0,
-      "minCourses": 1,
-      "waterfallTo": "professional"
+      "minCredits": 4,
+      "waterfallTo": "free"
     },
     {
       "id": "professional",
       "name": "Professional Electives (Core Electives)",
       "matchType": "category",
       "matchValue": "P",
-      "minCredits": 29,
+      "minCredits": 27,
       "waterfallTo": "free"
     },
     {
-      "id": "math",
-      "name": "Mathematics",
-      "matchType": "startsWith",
-      "matchValue": "MA",
+      "id": "management",
+      "name": "Management Elective",
+      "matchType": "category",
+      "matchValue": "M",
       "minCredits": 9,
-      "waterfallTo": "science"
+      "waterfallTo": "free"
     },
     {
-      "id": "science",
-      "name": "Basic Sciences",
+      "id": "math_science",
+      "name": "Maths / Science Elective",
       "matchType": "category",
       "matchValue": "S",
       "minCredits": 9,
@@ -228,9 +243,11 @@
       "matchValue": [
         "G",
         "E",
+        "C",
+        "M",
         "ANY"
       ],
-      "minCredits": 88,
+      "minCredits": 54,
       "waterfallTo": null
     }
   ]

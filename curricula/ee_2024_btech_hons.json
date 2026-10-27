@@ -1,8 +1,7 @@
 {
-  "id": "ee_dual_degree_hons_2024",
-  "name": "EE Dual Degree Honours (post 2024)",
-  "fullName": "Electrical Engineering (Dual Degree Honours - post 2024)",
-  "totalCredits": 542,
+  "fullName": "Electrical Engineering (B.Tech Honours - post 2024)",
+  "totalCredits": 430,
+  "extra": "This curriculum assumes that the BTP is done inside the department and thus counts towards professional credits. If this is not the case, please make sure that 27 of the free credits can be counted as professional.",
   "coreCourses": {
     "MA1101": {
       "name": "Calculus",
@@ -153,7 +152,7 @@
   "requirements": [
     {
       "id": "programming_basket",
-      "name": "EE Programming Elective Basket",
+      "name": "EE Programming Elective",
       "matchType": "in_list",
       "matchValue": [
         "EE1102",
@@ -207,14 +206,6 @@
       "waterfallTo": "free"
     },
     {
-      "id": "dd_project",
-      "name": "Dual Degree Project",
-      "matchType": "startsWith",
-      "matchValue": "EE69",
-      "minCredits": 85,
-      "waterfallTo": "professional"
-    },
-    {
       "id": "btp",
       "name": "B. Tech Project",
       "matchType": "in_list",
@@ -232,7 +223,7 @@
       "excludePrefix": "EE69",
       "category": "P",
       "minLevel": 5000,
-      "minCredits": 54,
+      "minCredits": 27,
       "waterfallTo": "professional"
     },
     {

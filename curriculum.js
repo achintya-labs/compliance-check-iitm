@@ -1,71 +1,29 @@
 /**
  * Curriculum Manager & On-Demand Loader
- * Each curriculum is stored in its own JSON file under curricula/*.json
+ * Curricula metadata is maintained in curricula/index.json.
+ * Each curriculum file is specified by the "file" path in index.json
  * and loaded asynchronously as needed.
  */
 
-const curriculaList = [
-    {
-        id: "ee_btech",
-        name: "EE B.Tech (pre 2023)",
-        fullName: "Electrical Engineering (B.Tech - pre 2023)",
-        file: "curricula/ee_btech.json"
-    },
-    {
-        id: "ee_btech_hons",
-        name: "EE B.Tech Honours (pre 2023)",
-        fullName: "Electrical Engineering (B.Tech Honours - pre 2023)",
-        file: "curricula/ee_btech_hons.json"
-    },
-    {
-        id: "ee_dual_degree",
-        name: "EE Dual Degree (pre 2023)",
-        fullName: "Electrical Engineering (Dual Degree - pre 2023)",
-        file: "curricula/ee_dual_degree.json"
-    },
-    {
-        id: "ee_dual_degree_hons",
-        name: "EE Dual Degree Honours (pre 2023)",
-        fullName: "Electrical Engineering (Dual Degree Honours - pre 2023)",
-        file: "curricula/ee_dual_degree_hons.json"
-    },
-    {
-        id: "ee_btech_2024",
-        name: "EE B.Tech (post 2024)",
-        fullName: "Electrical Engineering (B.Tech - post 2024)",
-        file: "curricula/ee_btech_2024.json"
-    },
-    {
-        id: "ee_btech_hons_2024",
-        name: "EE B.Tech Honours (post 2024)",
-        fullName: "Electrical Engineering (B.Tech Honours - post 2024)",
-        file: "curricula/ee_btech_hons_2024.json"
-    },
-    {
-        id: "ee_dual_degree_2024",
-        name: "EE Dual Degree (post 2024)",
-        fullName: "Electrical Engineering (Dual Degree - post 2024)",
-        file: "curricula/ee_dual_degree_2024.json"
-    },
-    {
-        id: "ee_dual_degree_hons_2024",
-        name: "EE Dual Degree Honours (post 2024)",
-        fullName: "Electrical Engineering (Dual Degree Honours - post 2024)",
-        file: "curricula/ee_dual_degree_hons_2024.json"
-    }
-];
+// Master list of available curricula, loaded from curricula/index.json
+const curriculaList = [];
 
-// In-memory cache for loaded curricula
+// In-memory cache for loaded curricula details
 const curricula = {};
 
+let curriculaListPromise = null;
+
 /**
- * Loads a curriculum by ID from its JSON file.
- * Returns a Promise resolving to the curriculum data.
+ * Loads the list of curricula from curricula/index.json.
+ * Returns a Promise resolving to curriculaList.
  */
-async function loadCurriculum(id = "ee_btech") {
-    if (!id) id = "ee_btech";
-    if (curricula[id]) {
-        return curricula[id];
+async function loadCurriculaList() {
+    if (curriculaList.length > 0) {
+        return curriculaList;
+    }
+
+    if (curriculaListPromise) {
+        return curriculaListPromise;
     }
 
     // Node.js environment support for tests & offline scripting
@@ -73,28 +31,99 @@ async function loadCurriculum(id = "ee_btech") {
         try {
             const fs = require("fs");
             const path = require("path");
-            const filePath = path.join(__dirname, "curricula", `${id}.json`);
-            if (fs.existsSync(filePath)) {
-                const data = JSON.parse(fs.readFileSync(filePath, "utf8"));
-                curricula[id] = data;
-                return data;
+            const indexPath = path.join(__dirname, "curricula", "index.json");
+            if (fs.existsSync(indexPath)) {
+                const list = JSON.parse(fs.readFileSync(indexPath, "utf8"));
+                curriculaList.length = 0;
+                list.forEach(c => curriculaList.push(c));
+                return curriculaList;
             }
         } catch (e) {
-            console.error(`Error loading curriculum file for ${id} in Node:`, e);
+            console.error("Error loading curricula index in Node:", e);
         }
     }
 
-    // Browser environment: fetch the JSON file
+    // Browser environment: fetch curricula/index.json
+    curriculaListPromise = (async () => {
+        try {
+            const response = await fetch("curricula/index.json");
+            if (!response.ok) {
+                throw new Error(`Failed to load curricula/index.json: HTTP ${response.status}`);
+            }
+            const list = await response.json();
+            curriculaList.length = 0;
+            list.forEach(c => curriculaList.push(c));
+            return curriculaList;
+        } catch (err) {
+            console.error("Failed to load curricula/index.json:", err);
+            throw err;
+        } finally {
+            curriculaListPromise = null;
+        }
+    })();
+
+    return curriculaListPromise;
+}
+
+/**
+ * Loads a curriculum by ID or file path using the "file" path configured in index.json.
+ * Returns a Promise resolving to the curriculum data.
+ */
+async function loadCurriculum(id = "ee_btech") {
+    if (!id) id = curriculaList[0]?.id || "ee_btech";
+    if (curricula[id]) {
+        return curricula[id];
+    }
+
+    // Ensure curriculaList metadata from index.json is loaded first
+    if (curriculaList.length === 0) {
+        await loadCurriculaList();
+    }
+
+    // Resolve curriculum entry from curriculaList to obtain the configured file path
+    const entry = curriculaList.find(c => c.id === id || c.file === id);
+    const targetId = entry ? entry.id : id;
+    const filePath = entry ? entry.file : (id.endsWith(".json") ? id : `curricula/${id}.json`);
+
+    if (curricula[targetId]) {
+        return curricula[targetId];
+    }
+
+    // Node.js environment support for tests & offline scripting
+    if (typeof process !== "undefined" && process.versions && process.versions.node) {
+        try {
+            const fs = require("fs");
+            const path = require("path");
+            const fullPath = path.isAbsolute(filePath) ? filePath : path.join(__dirname, filePath);
+            if (fs.existsSync(fullPath)) {
+                const data = JSON.parse(fs.readFileSync(fullPath, "utf8"));
+                data.id = targetId;
+                if (entry?.name && !data.name) {
+                    data.name = entry.name;
+                }
+                curricula[targetId] = data;
+                return data;
+            }
+        } catch (e) {
+            console.error(`Error loading curriculum file ${filePath} in Node:`, e);
+        }
+    }
+
+    // Browser environment: fetch the JSON file using the path configured in index.json
     try {
-        const response = await fetch(`curricula/${id}.json`);
+        const response = await fetch(filePath);
         if (!response.ok) {
-            throw new Error(`Failed to load curricula/${id}.json: HTTP ${response.status}`);
+            throw new Error(`Failed to load ${filePath}: HTTP ${response.status}`);
         }
         const data = await response.json();
-        curricula[id] = data;
+        data.id = targetId;
+        if (entry?.name && !data.name) {
+            data.name = entry.name;
+        }
+        curricula[targetId] = data;
         return data;
     } catch (err) {
-        console.error(`Error fetching curriculum JSON for ${id}:`, err);
+        console.error(`Error fetching curriculum JSON from ${filePath}:`, err);
         throw err;
     }
 }
@@ -103,25 +132,43 @@ async function loadCurriculum(id = "ee_btech") {
  * Retrieves the currently loaded curriculum from cache (or null if not yet loaded).
  */
 function getLoadedCurriculum(id) {
-    if (!id) id = "ee_btech";
+    if (!id) id = curriculaList[0]?.id || "ee_btech";
     return curricula[id] || null;
 }
 
-// In Node.js, synchronously pre-populate curricula for convenience in unit tests
+// In Node.js, synchronously pre-populate curriculaList and all curricula for unit tests & offline scripting
 if (typeof process !== "undefined" && process.versions && process.versions.node) {
     try {
         const fs = require("fs");
         const path = require("path");
-        const curriculaDir = path.join(__dirname, "curricula");
-        if (fs.existsSync(curriculaDir)) {
-            curriculaList.forEach(item => {
-                const p = path.join(curriculaDir, `${item.id}.json`);
-                if (fs.existsSync(p)) {
-                    curricula[item.id] = JSON.parse(fs.readFileSync(p, "utf8"));
-                }
-            });
+        const indexPath = path.join(__dirname, "curricula", "index.json");
+        if (fs.existsSync(indexPath)) {
+            const list = JSON.parse(fs.readFileSync(indexPath, "utf8"));
+            curriculaList.length = 0;
+            list.forEach(item => curriculaList.push(item));
         }
-    } catch (e) {}
+        curriculaList.forEach(item => {
+            if (!item.file) return;
+            const p = path.isAbsolute(item.file) ? item.file : path.join(__dirname, item.file);
+            if (fs.existsSync(p)) {
+                const data = JSON.parse(fs.readFileSync(p, "utf8"));
+                data.id = item.id;
+                if (item.name && !data.name) {
+                    data.name = item.name;
+                }
+                curricula[item.id] = data;
+            }
+        });
+    } catch (e) {
+        console.error("Error pre-populating curricula in Node:", e);
+    }
+}
+
+// In browser, trigger background load of index immediately when script is parsed
+if (typeof window !== "undefined" && typeof fetch === "function") {
+    loadCurriculaList().catch(err => {
+        console.warn("Could not preload curricula list in background:", err);
+    });
 }
 
 // Backward-compatibility default export for synchronous references
@@ -132,6 +179,7 @@ if (typeof module !== "undefined" && module.exports) {
         curriculaList,
         curricula,
         loadCurriculum,
+        loadCurriculaList,
         getLoadedCurriculum,
         curriculum
     };

@@ -1,8 +1,7 @@
 {
-  "id": "ee_dual_degree_hons",
-  "name": "EE Dual Degree Honours (pre 2023)",
-  "fullName": "Electrical Engineering (Dual Degree Honours - pre 2023)",
-  "totalCredits": 578,
+  "fullName": "Electrical Engineering (B.Tech Honours - pre 2023)",
+  "totalCredits": 457,
+  "extra": "This curriculum assumes that the BTP is done inside the department and thus counts towards professional credits. If this is not the case, please make sure that 27 of the free credits can be counted as professional.",
   "coreCourses": {
     "MA1101": {
       "name": "Functions of Several Variables",
@@ -190,14 +189,6 @@
       "waterfallTo": "professional"
     },
     {
-      "id": "dd_project",
-      "name": "Dual Degree Project",
-      "matchType": "startsWith",
-      "matchValue": "EE69",
-      "minCredits": 85,
-      "waterfallTo": "professional"
-    },
-    {
       "id": "btp",
       "name": "B. Tech Project",
       "matchType": "in_list",
@@ -215,7 +206,7 @@
       "excludePrefix": "EE69",
       "category": "P",
       "minLevel": 5000,
-      "minCredits": 63,
+      "minCredits": 27,
       "waterfallTo": "professional"
     },
     {
