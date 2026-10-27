@@ -1,15 +1,38 @@
 /**
- * Processes completed courses against the curriculum.
+ * Academic Compliance & Credit Evaluation Engine
+ * 
+ * Evaluates completed student course records against degree requirements,
+ * core curriculum mandates, elective baskets, course substitutions, and
+ * credit waterfall rules.
+ */
+
+/**
+ * Calculates academic compliance for a student's completed courses against a selected curriculum.
+ *
+ * @param {Array<Object>} userCourses - List of student course objects with properties:
+ *                                      code, name, credits, category, semester.
+ * @param {Object} curriculum - Curriculum rules object containing:
+ *                              coreCourses: Dictionary of mandatory core courses.
+ *                              requirements: Ordered array of elective requirement baskets.
+ * @param {Array<Object>} [substitutions=[]] - Array of approved course substitution pairs:
+ *                                             origCode / coreCode, replacementCode / replCode.
+ * @returns {{results: Object, messages: Array<Object>}} An object containing:
+ *          - results: Detailed status for 'core' and all 'reqs' baskets.
+ *          - messages: Notices, warnings, and error messages generated during evaluation.
  */
 function calculateCompliance(userCourses, curriculum, substitutions = []) {
+    // Array to capture informational notices and warnings during processing
     let messages = [];
     
+    // Deep-clone user courses into an evaluation pool to track credit consumption state
     let pool = userCourses.map(c => {
         let clonedCourse = { ...c };
         
+        // Enforce authoritative curriculum credits for mandatory core courses
         if (curriculum.coreCourses.hasOwnProperty(clonedCourse.code)) {
             const coreInfo = curriculum.coreCourses[clonedCourse.code];
             
+            // If user's input credits differ from curriculum definition, override and log warning
             if (clonedCourse.credits !== coreInfo.credits) {
                 messages.push({
                     type: 'warning',
@@ -19,19 +42,27 @@ function calculateCompliance(userCourses, curriculum, substitutions = []) {
             }
         }
         
+        // Initialize mutable tracking fields for credit allocation and waterfalling
         clonedCourse.remainingCredits = clonedCourse.credits;
         clonedCourse.consumed = false;
         clonedCourse.waterfalledTo = null;
         return clonedCourse;
     });
 
+    /**
+     * Determines whether a course is eligible to satisfy requirements.
+     * Zero-credit courses (e.g. Life Skills, NSS) remain available until consumed.
+     *
+     * @param {Object} c - The candidate course in the evaluation pool.
+     * @returns {boolean} True if the course has unallocated credits or is unconsumed zero-credit.
+     */
     function isCourseAvailable(c) {
         if (c.consumed) return false;
         if (c.credits === 0) return true;
         return c.remainingCredits > 0;
     }
 
-    // Normalize substitutions
+    // Normalize user-defined course substitutions into standard uppercase {origCode, replCode} objects
     const validSubs = Array.isArray(substitutions) ? substitutions.filter(s => {
         const orig = (s.origCode || s.coreCode || '').trim().toUpperCase();
         const repl = (s.replacementCode || s.replCode || '').trim().toUpperCase();
@@ -41,13 +72,16 @@ function calculateCompliance(userCourses, curriculum, substitutions = []) {
         replCode: (s.replacementCode || s.replCode || '').trim().toUpperCase()
     })) : [];
 
+    // Track which substitution rules have been matched to identify any unused mappings
     const handledSubs = new Set();
 
+    // Sum total mandatory core credits required by the curriculum
     let totalCoreCredits = 0;
     Object.values(curriculum.coreCourses).forEach(info => {
         totalCoreCredits += (info.credits || 0);
     });
 
+    // Initialize the compliance results structure
     let results = {
         core: {
             name: "Core Courses",
@@ -62,20 +96,24 @@ function calculateCompliance(userCourses, curriculum, substitutions = []) {
         reqs: {}
     };
 
-    // 1. Process Core Courses
+    /* ------------------------------------------------------------------
+       STEP 1: Evaluate Mandatory Core Courses
+       ------------------------------------------------------------------ */
     Object.keys(curriculum.coreCourses).forEach(coreCode => {
         const coreInfo = curriculum.coreCourses[coreCode];
 
-        // Check if there is a substitution mapped for this core course
+        // Check if an approved substitution is mapped for this core course
         const sub = validSubs.find(s => s.origCode === coreCode);
         const replCode = sub ? sub.replCode : null;
 
-        // Check if replacement course was completed
+        // Locate replacement course in student pool if substitution exists
         const replCourseIndex = replCode ? pool.findIndex(c => c.code === replCode && isCourseAvailable(c)) : -1;
-        // Check if core course was completed directly (ME1100 was replaced by ME3100 for batches prior to 2023)
+        
+        // Locate directly completed core course (accounting for historical ME1100 -> ME3100 equivalence)
         const userCourseIndex = pool.findIndex(c => (c.code === coreCode || (coreCode === 'ME1100' && c.code === 'ME3100')) && isCourseAvailable(c));
 
         if (replCode && replCourseIndex !== -1) {
+            // Case 1A: Satisfied via approved course substitution
             const replCourse = pool[replCourseIndex];
             results.core.appliedCourses += 1;
             results.core.appliedCredits += coreInfo.credits;
@@ -89,7 +127,7 @@ function calculateCompliance(userCourses, curriculum, substitutions = []) {
                 isCompleted: true,
                 note: `${replCourse.code} substituted`
             });
-            // Mark replacement course as consumed so it cannot count towards other sections
+            // Mark the replacement course fully consumed so it cannot satisfy elective baskets
             replCourse.remainingCredits = 0;
             replCourse.consumed = true;
             messages.push({
@@ -98,6 +136,7 @@ function calculateCompliance(userCourses, curriculum, substitutions = []) {
             });
             handledSubs.add(sub);
         } else if (userCourseIndex !== -1) {
+            // Case 1B: Satisfied directly by taking the mandatory core course
             const userCourse = pool[userCourseIndex];
             results.core.appliedCourses += 1;
             results.core.appliedCredits += coreInfo.credits;
@@ -111,10 +150,12 @@ function calculateCompliance(userCourses, curriculum, substitutions = []) {
                 isCompleted: true,
                 note: "Complete"
             });
+            // Consume the core course
             userCourse.remainingCredits = 0;
             userCourse.consumed = true;
             if (sub) handledSubs.add(sub);
         } else {
+            // Case 1C: Core course pending / incomplete
             results.core.coursesUsed.push({
                 code: coreCode,
                 name: coreInfo.name || "Pending...", 
@@ -124,6 +165,7 @@ function calculateCompliance(userCourses, curriculum, substitutions = []) {
                 isCompleted: false,
                 note: "Incomplete"
             });
+            // Warn if student configured a substitution but has not completed the replacement
             if (replCode) {
                 messages.push({
                     type: 'warning',
@@ -134,17 +176,19 @@ function calculateCompliance(userCourses, curriculum, substitutions = []) {
         }
     });
 
-    // 2. Process Requirements / Elective Baskets
+    /* ------------------------------------------------------------------
+       STEP 2: Evaluate Elective Requirement Baskets (Ordered Sequence)
+       ------------------------------------------------------------------ */
     curriculum.requirements.forEach(req => {
         results.reqs[req.id] = {
             name: req.name,
             needed: req.minCredits,
-            minCourses: req.minCourses, // Pass optional parameter to UI
+            minCourses: req.minCourses, // Optional constraint: minimum distinct courses required
             applied: 0,
             coursesUsed: []
         };
 
-        // First, apply any substitutions targeting named courses in this basket
+        // 2A: Process substitutions specifically targeting named courses in this basket
         if (req.matchType === 'in_list' && Array.isArray(req.matchValue)) {
             const basketSubs = validSubs.filter(s => req.matchValue.includes(s.origCode) && !handledSubs.has(s));
 
@@ -155,6 +199,7 @@ function calculateCompliance(userCourses, curriculum, substitutions = []) {
                     let creditsNeededForReq = Math.max(0, req.minCredits - results.reqs[req.id].applied);
                     let coursesNeededForReq = req.minCourses ? req.minCourses - results.reqs[req.id].coursesUsed.length : 0;
 
+                    // Allocate credit up to requirement cap or course availability
                     let take = Math.min(creditsNeededForReq, replCourse.remainingCredits);
                     if (take === 0 && creditsNeededForReq <= 0 && coursesNeededForReq > 0) {
                         take = 0;
@@ -163,7 +208,7 @@ function calculateCompliance(userCourses, curriculum, substitutions = []) {
                     }
 
                     results.reqs[req.id].applied += take;
-                    replCourse.remainingCredits = 0; // Substituted course cannot count towards other sections
+                    replCourse.remainingCredits = 0; // Substituted elective cannot count elsewhere
                     replCourse.consumed = true;
 
                     results.reqs[req.id].coursesUsed.push({
@@ -190,16 +235,17 @@ function calculateCompliance(userCourses, curriculum, substitutions = []) {
             });
         }
 
-        // Second, process standard courses matching this requirement
+        // 2B: Match and allocate standard student courses to this requirement basket
         pool.forEach(course => {
             if (isCourseAvailable(course) && matchesRequirement(course, req)) {
                 
                 let creditsNeededForReq = req.minCredits - results.reqs[req.id].applied;
                 let coursesNeededForReq = req.minCourses ? req.minCourses - results.reqs[req.id].coursesUsed.length : 0;
                 
+                // Determine credit allocation: capped at what is needed for this basket
                 let take = Math.max(0, Math.min(creditsNeededForReq, course.remainingCredits));
 
-                // Apply if we need the credits OR if we need the course count
+                // Apply course if it provides needed credits OR satisfies course count constraint
                 if (take > 0 || coursesNeededForReq > 0) {
                     results.reqs[req.id].applied += take;
                     course.remainingCredits -= take;
@@ -207,6 +253,7 @@ function calculateCompliance(userCourses, curriculum, substitutions = []) {
                         course.consumed = true;
                     }
                     
+                    // Human-readable status label describing how credits were utilized
                     let noteText = "Full Credit";
                     if (course.credits === 0) noteText = "Complete";
                     else if (take > 0 && take < course.credits) noteText = `Split (${take} used here)`;
@@ -222,6 +269,7 @@ function calculateCompliance(userCourses, curriculum, substitutions = []) {
                     });
                 }
 
+                // If course has leftover credits and basket defines a waterfall target, route leftovers
                 if (course.remainingCredits > 0 && req.waterfallTo) {
                     course.waterfalledTo = req.waterfallTo;
                 }
@@ -229,7 +277,10 @@ function calculateCompliance(userCourses, curriculum, substitutions = []) {
         });
     });
 
-    // Check for any substitutions targeting unknown courses
+    /* ------------------------------------------------------------------
+       STEP 3: Post-processing Audits and Leftover Detection
+       ------------------------------------------------------------------ */
+    // Check for substitutions configured by the student that did not match any core or basket course
     validSubs.forEach(sub => {
         if (!handledSubs.has(sub)) {
             messages.push({
@@ -239,6 +290,7 @@ function calculateCompliance(userCourses, curriculum, substitutions = []) {
         }
     });
 
+    // Detect non-core courses with leftover credits after all baskets have been fulfilled
     const leftovers = pool.filter(c => !c.consumed && c.remainingCredits > 0 && !curriculum.coreCourses.hasOwnProperty(c.code));
     if (leftovers.length > 0) {
         messages.push({
@@ -250,7 +302,22 @@ function calculateCompliance(userCourses, curriculum, substitutions = []) {
     return { results, messages };
 }
 
+/**
+ * Evaluates whether a course matches an elective requirement basket's criteria.
+ *
+ * Supports multiple matching paradigms:
+ * - 'level_or_above': Department prefix and numeric course level threshold (e.g. EE 5000+).
+ * - 'in_list': Explicit array of eligible course codes.
+ * - 'startsWith': Course code prefix pattern (e.g. 'MA' or 'ID1300').
+ * - 'category': Course category single-letter code matching (e.g. 'P', 'H', 'S', 'G').
+ * - Waterfall redirection: Courses whose surplus credits were routed to this requirement.
+ *
+ * @param {Object} course - Course object from the evaluation pool.
+ * @param {Object} req - Requirement basket definition from curriculum.requirements.
+ * @returns {boolean} True if the course satisfies the requirement criteria.
+ */
 function matchesRequirement(course, req) {
+    // Check advanced course level criteria (e.g. 5000+ level electives)
     if (req.matchType === 'level_or_above') {
         if (req.prefix && !course.code.startsWith(req.prefix)) return false;
         if (req.excludePrefix && course.code.startsWith(req.excludePrefix)) return false;
@@ -259,9 +326,13 @@ function matchesRequirement(course, req) {
         const num = digits ? parseInt(digits[0], 10) : 0;
         return num >= (req.minLevel || 0);
     }
+
+    // Check if course has surplus credits redirected here via waterfall
     if (course.waterfalledTo) {
         return course.waterfalledTo === req.id;
     }
+
+    // Standard pattern matching
     switch (req.matchType) {
         case 'in_list':
             return req.matchValue.includes(course.code);
@@ -277,6 +348,7 @@ function matchesRequirement(course, req) {
     }
 }
 
+// CommonJS module export for automated unit tests & offline Node execution
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { calculateCompliance, matchesRequirement };
 }

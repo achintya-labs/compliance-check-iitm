@@ -1,8 +1,26 @@
-/* =========================================================
-   A4 PRINT & PDF REPORT GENERATION
-   Dedicated module for formatting and exporting compliance reports
-   ========================================================= */
+/**
+ * A4 Printable & PDF Compliance Report Generator
+ *
+ * Dedicated module responsible for formatting, paginating, and generating
+ * print-ready compliance reports optimized for physical A4 printing and PDF export.
+ *
+ * Features:
+ * - Page 1: Formal title header, generation timestamp, metadata summary, and
+ *   a vertically centered "Summary by Requirement" status table.
+ * - Page 2: Section 2 heading and complete mandatory core courses breakdown.
+ * - Pages 3+: Elective requirement baskets and approved course substitutions,
+ *   dynamically paginated with a conservative row budget to avoid awkward breaks.
+ * - Running footers on every page with calculated "Page X of Y" counters.
+ * - Global interception of Ctrl+P / Cmd+P to invoke this custom printable view.
+ */
 
+/**
+ * Escapes special HTML characters to prevent XSS injection in generated print templates.
+ * Uses global escapeHtml from ui.js if available, with a local regex fallback.
+ *
+ * @param {string} str - Raw input string.
+ * @returns {string} HTML-escaped safe string.
+ */
 function escapePrintHtml(str) {
     if (typeof escapeHtml === 'function') {
         return escapeHtml(str);
@@ -11,6 +29,14 @@ function escapePrintHtml(str) {
     return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
+/**
+ * Resolves the official full display name for a curriculum.
+ * Prioritizes the loaded curriculum's fullName property, falling back to dropdown
+ * option text, catalog registry metadata, or the raw identifier.
+ *
+ * @param {string} currId - Curriculum identifier (e.g. 'ee_btech').
+ * @returns {string} Human-friendly curriculum display title.
+ */
 function getCurriculumDisplayName(currId) {
     const curr = (typeof getCurrentCurriculum === 'function' ? getCurrentCurriculum() : null) || (typeof curricula !== 'undefined' ? curricula[currId] : null);
     if (curr && (curr.fullName || curr.name)) return curr.fullName || curr.name;
@@ -25,6 +51,14 @@ function getCurriculumDisplayName(currId) {
     return currId || "Curriculum";
 }
 
+/**
+ * Renders the standardized running footer for an A4 print page.
+ * Displays unofficial report disclaimer, author credits, and explicit page numbers.
+ *
+ * @param {number} pageNum - Current 1-based page number.
+ * @param {number} totalP - Total calculated page count.
+ * @returns {string} HTML string for the page footer container.
+ */
 function renderPrintFooter(pageNum, totalP) {
     return `
         <div class="print-page-footer">
@@ -34,12 +68,25 @@ function renderPrintFooter(pageNum, totalP) {
     `;
 }
 
+/**
+ * Renders an individual requirement category card with its course breakdown table for print.
+ * Supports splitting long elective categories across multiple pages via chunking.
+ *
+ * @param {Object} section - Section wrapper { id, data, isCore }.
+ * @param {number} idx - Sequential section index.
+ * @param {Array<Object>} coursesSubset - Subset of courses to render in this table.
+ * @param {string} [partLabel=''] - Optional multi-part label (e.g. " (Part 1 of 2)").
+ * @param {number} [startIdx=null] - 1-based start index of courses rendered in this chunk.
+ * @param {number} [endIdx=null] - 1-based end index of courses rendered in this chunk.
+ * @returns {string} HTML markup for the category card.
+ */
 function renderPrintCategoryCard(section, idx, coursesSubset, partLabel = '', startIdx = null, endIdx = null) {
     const req = section.data;
     let reqPending = 0;
     let reqIsCompleted = false;
     let targetSummary = "";
 
+    // Calculate requirement targets and completion status
     if (section.isCore) {
         const neededCr = req.neededCredits !== undefined ? req.neededCredits : req.needed;
         const appliedCr = req.appliedCredits !== undefined ? req.appliedCredits : 0;
@@ -56,6 +103,7 @@ function renderPrintCategoryCard(section, idx, coursesSubset, partLabel = '', st
         targetSummary = `Requirement: ${req.needed} Credits${req.minCourses ? ` (Min ${req.minCourses} Courses)` : ''} | Applied: ${req.applied} Credits (${req.coursesUsed.length} Courses)`;
     }
 
+    // Append chunk range indicator if category has been paginated into multiple parts
     if (startIdx && endIdx && section.data.coursesUsed && section.data.coursesUsed.length > coursesSubset.length) {
         targetSummary += ` | Showing courses ${startIdx} to ${endIdx} of ${section.data.coursesUsed.length}`;
     }
@@ -72,6 +120,7 @@ function renderPrintCategoryCard(section, idx, coursesSubset, partLabel = '', st
             <div style="font-size: 7.5pt; color: #555; margin-bottom: 3pt;">${escapePrintHtml(targetSummary)}</div>
     `;
 
+    // Render course rows or placeholder if empty
     if (!coursesSubset || coursesSubset.length === 0) {
         html += `<p class="print-empty-hint">No courses applied to this requirement yet.</p>`;
     } else {
@@ -113,6 +162,12 @@ function renderPrintCategoryCard(section, idx, coursesSubset, partLabel = '', st
     return html;
 }
 
+/**
+ * Renders the Course Substitutions table card for the print breakdown view.
+ *
+ * @param {Array<Object>} substitutions - List of substitutions { origCode, replCode }.
+ * @returns {string} HTML markup for the substitutions card or empty string if no substitutions.
+ */
 function renderPrintSubstitutionsCard(substitutions) {
     if (!substitutions || substitutions.length === 0) return '';
     let html = `
@@ -149,13 +204,26 @@ function renderPrintSubstitutionsCard(substitutions) {
     return html;
 }
 
+/**
+ * Builds and renders the complete multi-page printable HTML report into #printReportView.
+ *
+ * Pagination strategy:
+ * - Page 1: Standalone summary with title header and vertically centered requirement overview.
+ * - Page 2: Dedicated to Section 2 title and complete Core Courses list.
+ * - Pages 3+: Electives and substitutions grouped using a conservative row cost budget
+ *   (MAX_BUDGET = 26) to prevent overflow or orphaned footers.
+ *
+ * @param {Object} [overrideCurr] - Optional curriculum object to use instead of active selection.
+ */
 function populatePrintReport(overrideCurr) {
     const printContainer = document.getElementById('printReportView');
     if (!printContainer) return;
 
+    // Resolve curriculum definition
     const curr = overrideCurr || (typeof getCurrentCurriculum === 'function' ? getCurrentCurriculum() : null);
     if (!curr) return;
 
+    // Gather completed courses and active substitutions
     let courses = typeof currentCourses !== 'undefined' ? currentCourses : [];
     if ((!courses || courses.length === 0) && typeof getCoursesFromEditor === 'function') {
         courses = getCoursesFromEditor();
@@ -166,6 +234,7 @@ function populatePrintReport(overrideCurr) {
         subs = getSubstitutionsFromEditor();
     }
 
+    // Run compliance calculations
     const { results } = calculateCompliance(courses, curr, subs);
     const currDisplayName = getCurriculumDisplayName(curr.id);
     const dateStr = new Date().toLocaleDateString(undefined, {
@@ -174,6 +243,7 @@ function populatePrintReport(overrideCurr) {
         day: 'numeric'
     });
 
+    // Compute cumulative credit totals and overall degree completion state
     const coreNeeded = results.core.neededCredits !== undefined ? results.core.neededCredits : results.core.needed;
     const coreApplied = results.core.appliedCredits !== undefined ? results.core.appliedCredits : 0;
     const coreNeededCourses = results.core.neededCourses !== undefined ? results.core.neededCourses : (results.core.coursesUsed ? results.core.coursesUsed.length : 0);
@@ -204,7 +274,7 @@ function populatePrintReport(overrideCurr) {
         ...reqKeys.map(key => ({ id: key, data: results.reqs[key], isCore: false }))
     ];
 
-    // Build Page 1: Summary Table
+    // Build summary rows for Page 1 overview table
     let summaryRowsHtml = '';
     allSections.forEach(section => {
         const req = section.data;
@@ -246,17 +316,16 @@ function populatePrintReport(overrideCurr) {
         `;
     });
 
-    // Section 2: Detailed Breakdown
-    // Page 2 is dedicated to Section 2 Heading + Complete Core Courses table
+    // Page 2: Dedicated Core Courses table
     const coreSection = allSections[0];
     const coreCoursesList = (coreSection && coreSection.data) ? (coreSection.data.coursesUsed || []) : [];
     const coreCardHtml = renderPrintCategoryCard(coreSection, 0, coreCoursesList, '');
 
-    // Pages 3+: Elective categories & approved substitutions
+    // Pages 3+: Chunk long elective categories and collect printable cards
     const electiveCards = [];
     allSections.slice(1).forEach((section, idx) => {
         const coursesList = section.data.coursesUsed || [];
-        const CHUNK_SIZE = 22;
+        const CHUNK_SIZE = 22; // Maximum courses per sub-table chunk
         if (coursesList.length > CHUNK_SIZE) {
             const numChunks = Math.ceil(coursesList.length / CHUNK_SIZE);
             const perChunk = Math.ceil(coursesList.length / numChunks);
@@ -277,6 +346,7 @@ function populatePrintReport(overrideCurr) {
         }
     });
 
+    // Append course substitutions card if substitutions exist
     if (subs && subs.length > 0) {
         electiveCards.push({
             html: renderPrintSubstitutionsCard(subs),
@@ -284,8 +354,8 @@ function populatePrintReport(overrideCurr) {
         });
     }
 
-    // Dynamic pagination for elective categories
-    const MAX_BUDGET = 26;
+    // Dynamic pagination algorithm grouping elective cards into pages
+    const MAX_BUDGET = 26; // Total line height units allowed per page
     const electivePages = [];
     let currentPageCards = [];
     let currentBudget = 0;
@@ -304,6 +374,7 @@ function populatePrintReport(overrideCurr) {
         electivePages.push(currentPageCards);
     }
 
+    // Sequence breakdown pages starting from Page 2
     const breakdownPages = [
         { html: `<h2 class="print-section-heading">2. Detailed Breakdown by Requirement</h2>${coreCardHtml}` },
         ...electivePages.map(pageItems => ({
@@ -313,7 +384,7 @@ function populatePrintReport(overrideCurr) {
 
     const totalPages = 1 + breakdownPages.length;
 
-    // Render Page 1
+    // Assemble Page 1 markup
     let fullHtml = `
         <div class="print-page">
             <div class="print-page-content">
@@ -350,7 +421,7 @@ function populatePrintReport(overrideCurr) {
         </div>
     `;
 
-    // Render Breakdown Pages
+    // Assemble Breakdown Pages (Page 2 to totalPages)
     breakdownPages.forEach((pageItem, pageIdx) => {
         const pageNumber = pageIdx + 2;
         fullHtml += `
@@ -363,9 +434,13 @@ function populatePrintReport(overrideCurr) {
         `;
     });
 
+    // Inject compiled document into the print container
     printContainer.innerHTML = fullHtml;
 }
 
+/**
+ * Validates prerequisites, compiles the print document, and opens the system print / PDF dialog.
+ */
 async function triggerPdfDownload() {
     let curr = typeof getCurrentCurriculum === 'function' ? getCurrentCurriculum() : null;
     if (!curr && typeof loadCurriculum === 'function') {
@@ -383,6 +458,7 @@ async function triggerPdfDownload() {
         courses = getCoursesFromEditor();
     }
 
+    // Require completed courses before generating PDF
     if (!courses || courses.length === 0) {
         if (typeof showEditorNotice === 'function') {
             showEditorNotice("Please enter your completed courses before downloading compliance PDF.", 'notice');
@@ -395,6 +471,7 @@ async function triggerPdfDownload() {
 }
 
 // Global print event listeners
+// Intercept Ctrl+P / Cmd+P to execute our structured A4 report instead of default page print
 window.addEventListener('keydown', (e) => {
     if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 'P')) {
         e.preventDefault();
@@ -402,6 +479,7 @@ window.addEventListener('keydown', (e) => {
     }
 });
 
+// Update print report immediately prior to printing (e.g. if user clicked browser Print menu)
 window.addEventListener('beforeprint', () => {
     populatePrintReport();
 });
