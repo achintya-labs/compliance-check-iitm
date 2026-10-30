@@ -114,7 +114,7 @@ function renderPrintCategoryCard(section, idx, coursesSubset, partLabel = '', st
                 <span class="print-category-title">${idx + 1}. ${escapePrintHtml(req.name)}${partLabel}</span>
                 <span class="print-category-status">
                     <span class="print-badge ${reqIsCompleted ? 'print-badge-pass' : 'print-badge-fail'}">${reqIsCompleted ? 'Complete' : 'Incomplete'}</span>
-                    <span class="print-pending-text">(${reqPending} pending)</span>
+                    <span class="print-pending-text">(${reqPending} credits pending)</span>
                 </span>
             </div>
             <div style="font-size: 7.5pt; color: #555; margin-bottom: 3pt;">${escapePrintHtml(targetSummary)}</div>
@@ -307,10 +307,12 @@ function populatePrintReport(overrideCurr) {
                 <td style="text-align: center;">${targetText}</td>
                 <td style="text-align: center;">${completedText}</td>
                 <td style="text-align: center;">
-                    <span class="print-badge ${isCompleted ? 'print-badge-pass' : 'print-badge-fail'}">
-                        ${isCompleted ? 'Complete' : 'Incomplete'}
-                    </span>
-                    <span class="print-pending-text">(${pending} pending)</span>
+                    <div class="print-status-wrap">
+                        <span class="print-badge ${isCompleted ? 'print-badge-pass' : 'print-badge-fail'}">
+                            ${isCompleted ? 'Complete' : 'Incomplete'}
+                        </span>
+                        <span class="print-pending-text">(${pending} credits pending)</span>
+                    </div>
                 </td>
             </tr>
         `;
@@ -394,7 +396,7 @@ function populatePrintReport(overrideCurr) {
                     <div class="print-header-spacing"></div>
                     <div class="print-report-meta">
                         <span><strong>Curriculum:</strong> ${escapePrintHtml(currDisplayName)}</span>
-                        <span><strong>Overall Status:</strong> ${allComplete ? '<span class="print-badge print-badge-pass">Complete</span>' : '<span class="print-badge print-badge-fail">Incomplete</span>'} (${totalPendingCredits} pending)</span>
+                        <span><strong>Overall Status:</strong> ${allComplete ? '<span class="print-badge print-badge-pass">Complete</span>' : '<span class="print-badge print-badge-fail">Incomplete</span>'} (${totalPendingCredits} credits pending)</span>
                         <span><strong>Credits:</strong> ${totalAppliedCredits} / ${totalNeededCredits}</span>
                         <span><strong>Courses Completed:</strong> ${courses.length}</span>
                     </div>
@@ -406,9 +408,9 @@ function populatePrintReport(overrideCurr) {
                         <thead>
                             <tr>
                                 <th style="width: 36%;">Requirement</th>
-                                <th style="width: 20%; text-align: center;">Target</th>
-                                <th style="width: 20%; text-align: center;">Completed</th>
-                                <th style="width: 24%; text-align: center;">Status</th>
+                                <th style="width: 18%; text-align: center;">Target</th>
+                                <th style="width: 18%; text-align: center;">Completed</th>
+                                <th style="width: 28%; text-align: center;">Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -472,14 +474,29 @@ async function triggerPdfDownload() {
 
 // Global print event listeners
 // Intercept Ctrl+P / Cmd+P to execute our structured A4 report instead of default page print
-window.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 'P')) {
-        e.preventDefault();
-        triggerPdfDownload();
-    }
-});
+if (typeof window !== 'undefined') {
+    window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 'P')) {
+            e.preventDefault();
+            triggerPdfDownload();
+        }
+    });
 
-// Update print report immediately prior to printing (e.g. if user clicked browser Print menu)
-window.addEventListener('beforeprint', () => {
-    populatePrintReport();
-});
+    // Update print report immediately prior to printing (e.g. if user clicked browser Print menu)
+    window.addEventListener('beforeprint', () => {
+        populatePrintReport();
+    });
+}
+
+// CommonJS module export for automated unit tests & offline Node execution
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        escapePrintHtml,
+        getCurriculumDisplayName,
+        renderPrintFooter,
+        renderPrintCategoryCard,
+        renderPrintSubstitutionsCard,
+        populatePrintReport,
+        triggerPdfDownload
+    };
+}

@@ -256,6 +256,8 @@
       "matchValue": [
         "G",
         "E",
+        "C",
+        "M",
         "ANY"
       ],
       "minCredits": 88,

@@ -706,20 +706,20 @@ th {
 
 #summaryTable th:nth-child(2),
 #summaryTable td:nth-child(2) {
-    width: 18%;
+    width: 17%;
     white-space: normal;
 }
 
 #summaryTable th:nth-child(3),
 #summaryTable td:nth-child(3) {
-    width: 18%;
+    width: 17%;
     white-space: normal;
 }
 
 #summaryTable th:nth-child(4),
 #summaryTable td:nth-child(4) {
-    width: 28%;
-    min-width: 130px;
+    width: 30%;
+    min-width: 235px;
     text-align: center;
 }
 
@@ -748,11 +748,15 @@ body:not(.light-mode) .metric-sub {
 }
 
 .status-wrap {
-    display: inline-flex;
+    display: inline-grid;
+    grid-template-columns: 84px 1fr;
     align-items: center;
-    justify-content: center;
-    gap: 0.45rem;
-    flex-wrap: wrap;
+    column-gap: 0.5rem;
+    width: 228px;
+    max-width: 100%;
+    margin: 0 auto;
+    text-align: left;
+    box-sizing: border-box;
 }
 
 /* Fixed width ONLY for initial summary table status badges */
@@ -788,6 +792,8 @@ body:not(.light-mode) .metric-sub {
     font-weight: 500;
     color: #555;
     white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    text-align: left;
 }
 
 body.dark-mode .status-pending,
@@ -1868,7 +1874,7 @@ body.light-mode .theme-switch .moon {
     }
 
     #summaryTable {
-        min-width: 500px;
+        min-width: 580px;
     }
 
     .detail-card table.table-core {
@@ -1885,6 +1891,12 @@ body.light-mode .theme-switch .moon {
         overflow: hidden !important;
         box-sizing: border-box;
         text-align: center;
+    }
+
+    .status-wrap {
+        grid-template-columns: 78px 1fr;
+        column-gap: 0.35rem;
+        width: 212px;
     }
 
     .badge {
@@ -1905,6 +1917,10 @@ body.light-mode .theme-switch .moon {
         min-width: 78px;
         max-width: 78px;
         font-size: 0.72rem;
+    }
+
+    .status-pending {
+        font-size: 0.74rem;
     }
 
     .detail-card table .badge {
@@ -1990,6 +2006,10 @@ body:not(.light-mode) .credits-box a {
     .page-title,
     #editorScreen,
     #summaryScreen,
+    #curriculumNotice,
+    .curriculum-notice,
+    .alert,
+    .alert-notice,
     .screen-action-bar,
     .message-board,
     .theme-toggle,
@@ -2243,11 +2263,29 @@ body:not(.light-mode) .credits-box a {
         border-color: #ffcdd2 !important;
     }
 
+    .print-status-wrap {
+        display: inline-grid !important;
+        grid-template-columns: 56pt 1fr !important;
+        column-gap: 4pt !important;
+        align-items: center !important;
+        width: 145pt !important;
+        margin: 0 auto !important;
+        text-align: left !important;
+        box-sizing: border-box !important;
+    }
+
     .print-pending-text {
         font-size: 7.5pt !important;
         color: #555555 !important;
-        margin-left: 2pt !important;
+        margin-left: 3pt !important;
         font-weight: 500 !important;
+        white-space: nowrap !important;
+        font-variant-numeric: tabular-nums !important;
+        text-align: left !important;
+    }
+
+    .print-status-wrap .print-pending-text {
+        margin-left: 0 !important;
     }
 
     .print-empty-hint {

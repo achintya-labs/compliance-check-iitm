@@ -1245,7 +1245,7 @@ function renderResults(results) {
                     <span class="badge ${isCompleted ? 'badge-pass' : 'badge-fail'}">
                         ${isCompleted ? 'Complete' : 'Incomplete'}
                     </span>
-                    <span class="status-pending">(${pendingCredits} pending)</span>
+                    <span class="status-pending">(${pendingCredits} credits pending)</span>
                 </div>
             </td>
         `;
